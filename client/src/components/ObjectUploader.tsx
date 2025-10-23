@@ -48,6 +48,10 @@ export function ObjectUploader({
       .on("complete", (result) => {
         setShowModal(false);
         onComplete?.(result);
+        uppy.cancelAll();
+      })
+      .on("error", (error) => {
+        console.error("Upload error:", error);
       })
   );
 
