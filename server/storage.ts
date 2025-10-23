@@ -183,10 +183,17 @@ export class DatabaseStorage implements IStorage {
         images: {
           orderBy: (images, { asc }) => [asc(images.displayOrder)],
         },
+        property: true,
       },
       orderBy: (units, { asc }) => [asc(units.unitNumber)],
     });
-    return propertyUnits;
+    
+    // Map to include propertyTitle while preserving images
+    return propertyUnits.map(({ property, ...unitData }) => ({
+      ...unitData,
+      images: unitData.images,
+      propertyTitle: property?.title,
+    }));
   }
 
   async getUnit(unitId: string): Promise<UnitWithImages | undefined> {
@@ -196,9 +203,19 @@ export class DatabaseStorage implements IStorage {
         images: {
           orderBy: (images, { asc }) => [asc(images.displayOrder)],
         },
+        property: true,
       },
     });
-    return unit;
+    
+    if (!unit) return undefined;
+    
+    // Extract property and map to include propertyTitle while preserving images
+    const { property, ...unitData } = unit;
+    return {
+      ...unitData,
+      images: unitData.images,
+      propertyTitle: property?.title,
+    };
   }
 
   async createUnit(unitData: InsertUnit): Promise<Unit> {

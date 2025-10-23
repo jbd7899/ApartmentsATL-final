@@ -191,6 +191,7 @@ export type PropertyWithImages = Property & {
 // Unit with images type
 export type UnitWithImages = Unit & {
   images: UnitImage[];
+  propertyTitle?: string;
 };
 
 // Property with units and images type

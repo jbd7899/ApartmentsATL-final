@@ -136,26 +136,33 @@ export function UnitManager({ propertyId }: UnitManagerProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {units.map((unit) => (
             <Card key={unit.id} data-testid={`card-unit-${unit.id}`}>
-              <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-3">
-                <CardTitle className="text-lg">Unit {unit.unitNumber}</CardTitle>
-                <div className="flex gap-1">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleEditUnit(unit)}
-                    data-testid={`button-edit-unit-${unit.id}`}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleDeleteUnit(unit.id)}
-                    data-testid={`button-delete-unit-${unit.id}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+              <CardHeader className="space-y-2 pb-3">
+                <div className="flex flex-row items-center justify-between gap-2">
+                  <CardTitle className="text-lg">Unit {unit.unitNumber}</CardTitle>
+                  <div className="flex gap-1">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleEditUnit(unit)}
+                      data-testid={`button-edit-unit-${unit.id}`}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleDeleteUnit(unit.id)}
+                      data-testid={`button-delete-unit-${unit.id}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
+                {unit.propertyTitle && (
+                  <p className="text-sm text-muted-foreground" data-testid={`text-property-title-${unit.id}`}>
+                    Property: {unit.propertyTitle}
+                  </p>
+                )}
               </CardHeader>
               <CardContent className="space-y-3">
                 {unit.images.length > 0 && (
