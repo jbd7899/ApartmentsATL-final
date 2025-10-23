@@ -54,6 +54,8 @@ Preferred communication style: Simple, everyday language.
 
 **API Structure:**
 - RESTful endpoints for properties CRUD operations
+- Unit management endpoints (`/api/properties/:id/units`, `/api/units/:id`)
+- Analytics endpoints (`/api/analytics/track-view/:id`, `/api/analytics/top-properties`)
 - Authentication endpoints (`/api/auth/user`)
 - Object storage endpoints for image upload/download (`/objects/*`, `/api/objects/upload`)
 - Consistent error handling with status codes and JSON responses
@@ -64,6 +66,26 @@ Preferred communication style: Simple, everyday language.
 - Custom ACL (Access Control List) system for object-level permissions
 - Pre-signed URL generation for secure uploads
 - Support for multiple images per property with primary image designation
+- Support for multiple images per unit with primary image designation
+
+**Unit Management System (Multifamily Properties):**
+- Individual unit tracking within multifamily properties (4-22 units per property)
+- Unit-specific details: unit number, bedrooms, bathrooms, square feet, features, YouTube video
+- Separate image galleries for each unit
+- Admin UI for creating, editing, and deleting units (UnitManager, UnitForm components)
+- Public UI displays units in responsive grid with detail modals
+- Conditional rendering: multifamily properties show unit grid, single-family properties show traditional layout
+
+**Property Comparison Feature:**
+- Context-based comparison system allowing users to compare up to 4 properties
+- Comparison bar component showing selected properties
+- Side-by-side comparison page with detailed specs
+- Persistent comparison state across navigation
+
+**Analytics System:**
+- Property view tracking with timestamps and session IDs
+- Admin analytics dashboard showing top properties by views
+- Page view tracking on PropertyDetail component
 
 ### Data Storage
 
@@ -77,7 +99,10 @@ Preferred communication style: Simple, everyday language.
 - `sessions` table: Manages authentication sessions
 - `properties` table: Core property data (title, description, location, type, bedrooms, bathrooms, etc.)
 - `property_images` table: Property photos with captions and primary flag
-- One-to-many relationship between properties and images
+- `units` table: Individual units within multifamily properties (unitNumber, bedrooms, bathrooms, squareFeet, features, youtubeUrl)
+- `unit_images` table: Unit-specific photos with captions and primary flag
+- `property_views` table: Analytics tracking for property page views with timestamps and session IDs
+- Relationships: properties → property_images (one-to-many), properties → units (one-to-many), units → unit_images (one-to-many)
 
 **Data Access Layer:**
 - Repository pattern implemented in `server/storage.ts`
