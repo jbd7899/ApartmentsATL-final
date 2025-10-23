@@ -348,7 +348,7 @@ export function UnitForm({ propertyId, unit, onClose }: UnitFormProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <ObjectUploader
-                maxNumberOfFiles={10}
+                maxNumberOfFiles={30}
                 maxFileSize={10485760}
                 onGetUploadParameters={handleGetUploadParameters}
                 onComplete={handleUploadComplete}
