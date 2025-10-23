@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PropertyCard } from "./PropertyCard";
-import { Button } from "@/components/ui/button";
+import { PropertyFilters, type PropertyFiltersState } from "./PropertyFilters";
 import { Loader2 } from "lucide-react";
 import type { PropertyWithImages } from "@shared/schema";
 
@@ -11,12 +11,44 @@ interface PropertyGridProps {
   location?: string;
 }
 
-export function PropertyGrid({ properties, isLoading, showFilters = false, location }: PropertyGridProps) {
-  const [typeFilter, setTypeFilter] = useState<"all" | "multifamily" | "single-family">("all");
+export function PropertyGrid({ properties, isLoading, showFilters = false }: PropertyGridProps) {
+  const [filters, setFilters] = useState<PropertyFiltersState>({
+    search: "",
+    bedrooms: "any",
+    minPrice: "",
+    maxPrice: "",
+    propertyType: "any",
+  });
+
+  const handleResetFilters = () => {
+    setFilters({
+      search: "",
+      bedrooms: "any",
+      minPrice: "",
+      maxPrice: "",
+      propertyType: "any",
+    });
+  };
 
   const filteredProperties = properties.filter(property => {
-    if (typeFilter === "all") return true;
-    return property.propertyType === typeFilter;
+    // Search filter
+    if (filters.search && !property.title.toLowerCase().includes(filters.search.toLowerCase()) &&
+        !property.description.toLowerCase().includes(filters.search.toLowerCase())) {
+      return false;
+    }
+
+    // Bedrooms filter
+    if (filters.bedrooms !== "any" && property.bedrooms !== null) {
+      const minBedrooms = parseInt(filters.bedrooms);
+      if (property.bedrooms < minBedrooms) return false;
+    }
+
+    // Property type filter
+    if (filters.propertyType !== "any" && property.propertyType !== filters.propertyType) {
+      return false;
+    }
+
+    return true;
   });
 
   if (isLoading) {
@@ -30,49 +62,32 @@ export function PropertyGrid({ properties, isLoading, showFilters = false, locat
   return (
     <div className="space-y-8">
       {showFilters && (
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-medium text-foreground">Filter by type:</span>
-          <div className="flex gap-2">
-            <Button
-              variant={typeFilter === "all" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setTypeFilter("all")}
-              data-testid="filter-all"
-            >
-              All Properties
-            </Button>
-            <Button
-              variant={typeFilter === "multifamily" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setTypeFilter("multifamily")}
-              data-testid="filter-multifamily"
-            >
-              Multifamily
-            </Button>
-            <Button
-              variant={typeFilter === "single-family" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setTypeFilter("single-family")}
-              data-testid="filter-single-family"
-            >
-              Single Family
-            </Button>
-          </div>
-        </div>
+        <PropertyFilters 
+          filters={filters} 
+          onFiltersChange={setFilters} 
+          onReset={handleResetFilters}
+        />
       )}
 
       {filteredProperties.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-lg text-muted-foreground" data-testid="text-no-properties">
-            No properties found. Check back soon!
+            No properties match your filters. Try adjusting your search criteria.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProperties.map((property) => (
-            <PropertyCard key={property.id} property={property} />
-          ))}
-        </div>
+        <>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Showing {filteredProperties.length} {filteredProperties.length === 1 ? 'property' : 'properties'}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProperties.map((property) => (
+              <PropertyCard key={property.id} property={property} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

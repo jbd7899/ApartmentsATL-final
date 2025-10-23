@@ -24,14 +24,24 @@ export default function Home() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Featured Properties
+                Currently For Rent
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Explore our selection of quality rental properties in Atlanta and Dallas
+                Explore our properties currently for rent or coming up for rent soon.
               </p>
             </div>
 
-            <PropertyGrid properties={displayProperties} isLoading={isLoading} />
+            <div className="max-w-6xl mx-auto">
+              <iframe
+                src="https://apartmentsatl.appfolio.com/listings/listings"
+                width="100%"
+                height="800"
+                frameBorder="0"
+                className="rounded-lg border bg-background"
+                data-testid="iframe-appfolio-listings"
+                title="Available Properties for Rent"
+              />
+            </div>
           </div>
         </section>
 
