@@ -2,6 +2,8 @@ import {
   users,
   properties,
   propertyImages,
+  units,
+  unitImages,
   type User,
   type UpsertUser,
   type Property,
@@ -9,6 +11,12 @@ import {
   type PropertyImage,
   type InsertPropertyImage,
   type PropertyWithImages,
+  type Unit,
+  type InsertUnit,
+  type UnitImage,
+  type InsertUnitImage,
+  type UnitWithImages,
+  type PropertyWithUnitsAndImages,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
@@ -29,6 +37,20 @@ export interface IStorage {
   // Property image operations
   addPropertyImages(images: InsertPropertyImage[]): Promise<PropertyImage[]>;
   deletePropertyImages(propertyId: string): Promise<void>;
+
+  // Unit operations
+  getUnitsByPropertyId(propertyId: string): Promise<UnitWithImages[]>;
+  getUnit(unitId: string): Promise<UnitWithImages | undefined>;
+  createUnit(unit: InsertUnit): Promise<Unit>;
+  updateUnit(unitId: string, unit: Partial<InsertUnit>): Promise<Unit | undefined>;
+  deleteUnit(unitId: string): Promise<void>;
+
+  // Unit image operations
+  addUnitImages(images: InsertUnitImage[]): Promise<UnitImage[]>;
+  deleteUnitImages(unitId: string): Promise<void>;
+
+  // Combined operations
+  getPropertyWithUnits(propertyId: string): Promise<PropertyWithUnitsAndImages | undefined>;
 
   // Analytics operations
   trackPropertyView(propertyId: string, ipAddress?: string, userAgent?: string): Promise<void>;
@@ -132,6 +154,91 @@ export class DatabaseStorage implements IStorage {
 
   async deletePropertyImages(propertyId: string): Promise<void> {
     await db.delete(propertyImages).where(eq(propertyImages.propertyId, propertyId));
+  }
+
+  // Unit operations
+  async getUnitsByPropertyId(propertyId: string): Promise<UnitWithImages[]> {
+    const propertyUnits = await db.query.units.findMany({
+      where: eq(units.propertyId, propertyId),
+      with: {
+        images: {
+          orderBy: (images, { asc }) => [asc(images.displayOrder)],
+        },
+      },
+      orderBy: (units, { asc }) => [asc(units.unitNumber)],
+    });
+    return propertyUnits;
+  }
+
+  async getUnit(unitId: string): Promise<UnitWithImages | undefined> {
+    const unit = await db.query.units.findFirst({
+      where: eq(units.id, unitId),
+      with: {
+        images: {
+          orderBy: (images, { asc }) => [asc(images.displayOrder)],
+        },
+      },
+    });
+    return unit;
+  }
+
+  async createUnit(unitData: InsertUnit): Promise<Unit> {
+    const [unit] = await db
+      .insert(units)
+      .values(unitData)
+      .returning();
+    return unit;
+  }
+
+  async updateUnit(unitId: string, unitData: Partial<InsertUnit>): Promise<Unit | undefined> {
+    const [unit] = await db
+      .update(units)
+      .set({
+        ...unitData,
+        updatedAt: new Date(),
+      })
+      .where(eq(units.id, unitId))
+      .returning();
+    return unit;
+  }
+
+  async deleteUnit(unitId: string): Promise<void> {
+    await db.delete(units).where(eq(units.id, unitId));
+  }
+
+  // Unit image operations
+  async addUnitImages(images: InsertUnitImage[]): Promise<UnitImage[]> {
+    if (images.length === 0) return [];
+    const inserted = await db
+      .insert(unitImages)
+      .values(images)
+      .returning();
+    return inserted;
+  }
+
+  async deleteUnitImages(unitId: string): Promise<void> {
+    await db.delete(unitImages).where(eq(unitImages.unitId, unitId));
+  }
+
+  // Combined operations
+  async getPropertyWithUnits(propertyId: string): Promise<PropertyWithUnitsAndImages | undefined> {
+    const property = await db.query.properties.findFirst({
+      where: eq(properties.id, propertyId),
+      with: {
+        images: {
+          orderBy: (images, { asc }) => [asc(images.displayOrder)],
+        },
+        units: {
+          with: {
+            images: {
+              orderBy: (images, { asc }) => [asc(images.displayOrder)],
+            },
+          },
+          orderBy: (units, { asc }) => [asc(units.unitNumber)],
+        },
+      },
+    });
+    return property;
   }
 
   // Analytics operations
