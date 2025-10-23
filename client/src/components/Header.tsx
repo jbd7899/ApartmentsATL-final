@@ -73,7 +73,7 @@ export function Header() {
               </a>
             </Button>
 
-            {isAuthenticated ? (
+            {isAuthenticated && (
               <Button
                 variant="default"
                 size="sm"
@@ -81,15 +81,6 @@ export function Header() {
                 data-testid="button-admin"
               >
                 <Link href="/admin">Admin</Link>
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                data-testid="button-login"
-              >
-                <a href="/api/login">Log In</a>
               </Button>
             )}
           </div>
