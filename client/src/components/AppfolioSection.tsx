@@ -35,28 +35,12 @@ export function AppfolioSection() {
                   data-testid="button-view-listings"
                 >
                   <a
-                    href="https://apartmentsatl.appfolio.com"
+                    href="https://apartmentsatl.appfolio.com/listings"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2"
                   >
                     View Available Listings
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  asChild
-                  data-testid="button-resident-portal-cta"
-                >
-                  <a
-                    href="https://apartmentsatl.appfolio.com/connect/users/sign_in"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2"
-                  >
-                    Current Residents
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 </Button>
