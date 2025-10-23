@@ -15,7 +15,6 @@ export function PropertyCard({ property }: PropertyCardProps) {
   const primaryImage = property.images.find(img => img.isPrimary) || property.images[0];
   const imageUrl = primaryImage?.imageUrl || "/api/placeholder/400/300";
 
-  const locationLabel = property.location === "atlanta" ? "Atlanta, GA" : "Dallas, TX";
   const typeLabel = property.propertyType === "multifamily" ? "Multifamily" : "Single Family";
   const inComparison = isInComparison(property.id);
   const comparisonFull = comparedProperties.length >= 3 && !inComparison;
@@ -48,10 +47,12 @@ export function PropertyCard({ property }: PropertyCardProps) {
           </h3>
         </div>
 
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">
-          <MapPin className="h-4 w-4" />
-          <span data-testid={`text-location-${property.id}`}>{locationLabel}</span>
-        </div>
+        {property.address && (
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">
+            <MapPin className="h-4 w-4" />
+            <span data-testid={`text-location-${property.id}`}>{property.address}</span>
+          </div>
+        )}
 
         <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
           {property.description}
