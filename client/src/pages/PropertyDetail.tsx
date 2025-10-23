@@ -40,9 +40,7 @@ export default function PropertyDetail() {
           <div className="text-center">
             <h1 className="text-2xl font-bold text-foreground mb-4">Property Not Found</h1>
             <Button asChild>
-              <Link href="/">
-                <a>Back to Home</a>
-              </Link>
+              <Link href="/">Back to Home</Link>
             </Button>
           </div>
         </main>
@@ -70,11 +68,9 @@ export default function PropertyDetail() {
       <main className="flex-1">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Button variant="ghost" asChild className="mb-6" data-testid="button-back">
-            <Link href={`/${property.location}`}>
-              <a className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to {property.location === "atlanta" ? "Atlanta" : "Dallas"} Properties
-              </a>
+            <Link href={`/${property.location}`} className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to {property.location === "atlanta" ? "Atlanta" : "Dallas"} Properties
             </Link>
           </Button>
 
