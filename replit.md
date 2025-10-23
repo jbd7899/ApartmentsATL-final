@@ -51,6 +51,7 @@ Preferred communication style: Simple, everyday language.
 - Session-based authentication with PostgreSQL session store (`connect-pg-simple`)
 - Middleware-based route protection with `isAuthenticated` guard
 - Session cookies with 7-day TTL, httpOnly and secure flags
+- Single-tenant security model: All authenticated users are family business admins with full access to manage properties
 
 **API Structure:**
 - RESTful endpoints for properties CRUD operations
@@ -60,13 +61,14 @@ Preferred communication style: Simple, everyday language.
 - Object storage endpoints for image upload/download (`/objects/*`, `/api/objects/upload`)
 - Consistent error handling with status codes and JSON responses
 
-**File Upload System:**
+**File Upload & Deletion System:**
 - Uppy dashboard for client-side file management
 - Google Cloud Storage backend for object storage
 - Custom ACL (Access Control List) system for object-level permissions
 - Pre-signed URL generation for secure uploads
 - Support for multiple images per property with primary image designation
 - Support for multiple images per unit with primary image designation
+- Image deletion endpoints (DELETE /api/property-images/:id, DELETE /api/unit-images/:id) with ACL cleanup
 
 **Unit Management System (Multifamily Properties):**
 - Individual unit tracking within multifamily properties (4-22 units per property)
