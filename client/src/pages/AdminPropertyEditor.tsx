@@ -158,18 +158,44 @@ export default function AdminPropertyEditor() {
   });
 
   const handleGetUploadParameters = async () => {
-    const response = await fetch("/api/objects/upload", {
-      method: "POST",
-      credentials: "include",
-    });
-    if (!response.ok) {
-      throw new Error("Failed to get upload URL");
+    try {
+      const response = await fetch("/api/objects/upload", {
+        method: "POST",
+        credentials: "include",
+      });
+      
+      if (response.status === 401) {
+        toast({
+          title: "Unauthorized",
+          description: "You need to log in again",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        throw new Error("Unauthorized");
+      }
+      
+      if (!response.ok) {
+        console.error("Failed to get upload URL, status:", response.status);
+        throw new Error(`Failed to get upload URL: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log("Got upload URL successfully");
+      return {
+        method: "PUT" as const,
+        url: data.uploadURL,
+      };
+    } catch (error) {
+      console.error("Error in handleGetUploadParameters:", error);
+      toast({
+        title: "Upload Error",
+        description: "Failed to prepare file upload. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
     }
-    const data = await response.json();
-    return {
-      method: "PUT" as const,
-      url: data.uploadURL,
-    };
   };
 
   const handleUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
