@@ -212,24 +212,6 @@ export default function PropertyDetail() {
               </div>
             </div>
 
-            <div className="pt-4 border-t">
-              <Button
-                className="w-full"
-                size="lg"
-                asChild
-                data-testid="button-check-availability"
-              >
-                <a 
-                  href="https://apartmentsatl.appfolio.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2"
-                >
-                  Check Availability
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              </Button>
-            </div>
           </CardContent>
         </Card>
       </div>
@@ -261,23 +243,6 @@ export default function PropertyDetail() {
               <p className="text-foreground leading-relaxed whitespace-pre-wrap">
                 {property.description}
               </p>
-              <div className="mt-6">
-                <Button
-                  size="lg"
-                  asChild
-                  data-testid="button-check-availability"
-                >
-                  <a 
-                    href="https://apartmentsatl.appfolio.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2"
-                  >
-                    Check Availability
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </Button>
-              </div>
             </div>
 
             {/* Property Images */}
@@ -559,26 +524,11 @@ export default function PropertyDetail() {
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3 pt-4 border-t">
                 <Button
-                  size="lg"
-                  className="flex-1"
-                  asChild
-                  data-testid="button-unit-check-availability"
-                >
-                  <a 
-                    href="https://apartmentsatl.appfolio.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2"
-                  >
-                    Check Availability
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </Button>
-                <Button
                   variant="outline"
                   size="lg"
                   onClick={() => setSelectedUnit(null)}
                   data-testid="button-close-unit-detail"
+                  className="w-full"
                 >
                   Back to Units
                 </Button>
