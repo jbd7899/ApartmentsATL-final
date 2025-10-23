@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ObjectUploader } from "@/components/ObjectUploader";
+import { UnitManager } from "@/components/admin/UnitManager";
 import { Loader2, ArrowLeft, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -463,6 +464,29 @@ export default function AdminPropertyEditor() {
               </div>
             </div>
           </form>
+
+          {propertyId && (
+            <div className="mt-8">
+              {formData.propertyType === "multifamily" ? (
+                <Card>
+                  <CardContent className="p-6">
+                    <UnitManager propertyId={propertyId} />
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="text-center">
+                      <h3 className="text-lg font-semibold mb-2">Units Management</h3>
+                      <p className="text-sm text-muted-foreground" data-testid="text-single-family-message">
+                        Unit management is only available for multifamily properties. This property is configured as single-family.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
         </div>
       </main>
       <Footer />
