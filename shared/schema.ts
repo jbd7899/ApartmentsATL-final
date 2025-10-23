@@ -185,6 +185,7 @@ export type InsertUnitImage = z.infer<typeof insertUnitImageSchema>;
 // Property with images type
 export type PropertyWithImages = Property & {
   images: PropertyImage[];
+  unitCount?: number;
 };
 
 // Unit with images type

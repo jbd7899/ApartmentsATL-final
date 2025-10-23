@@ -87,10 +87,17 @@ export class DatabaseStorage implements IStorage {
         images: {
           orderBy: (images, { asc }) => [asc(images.displayOrder)],
         },
+        units: true,
       },
       orderBy: (properties, { desc }) => [desc(properties.createdAt)],
     });
-    return allProperties;
+    
+    // Add unit count to each property
+    return allProperties.map(property => ({
+      ...property,
+      unitCount: property.units?.length || 0,
+      units: undefined, // Remove units from the response to keep it lightweight
+    })) as PropertyWithImages[];
   }
 
   async getProperty(id: string): Promise<PropertyWithImages | undefined> {

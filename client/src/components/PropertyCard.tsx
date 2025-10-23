@@ -58,23 +58,32 @@ export function PropertyCard({ property }: PropertyCardProps) {
         </p>
 
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          {property.bedrooms !== null && (
+          {property.propertyType === "multifamily" ? (
             <div className="flex items-center gap-1.5">
-              <Bed className="h-4 w-4" />
-              <span>{property.bedrooms} bed</span>
+              <Home className="h-4 w-4" />
+              <span>{property.unitCount || 0} {property.unitCount === 1 ? 'unit' : 'units'}</span>
             </div>
-          )}
-          {property.bathrooms !== null && (
-            <div className="flex items-center gap-1.5">
-              <Bath className="h-4 w-4" />
-              <span>{property.bathrooms} bath</span>
-            </div>
-          )}
-          {property.squareFeet !== null && (
-            <div className="flex items-center gap-1.5">
-              <Maximize className="h-4 w-4" />
-              <span>{property.squareFeet.toLocaleString()} sq ft</span>
-            </div>
+          ) : (
+            <>
+              {property.bedrooms !== null && (
+                <div className="flex items-center gap-1.5">
+                  <Bed className="h-4 w-4" />
+                  <span>{property.bedrooms} bed</span>
+                </div>
+              )}
+              {property.bathrooms !== null && (
+                <div className="flex items-center gap-1.5">
+                  <Bath className="h-4 w-4" />
+                  <span>{property.bathrooms} bath</span>
+                </div>
+              )}
+              {property.squareFeet !== null && (
+                <div className="flex items-center gap-1.5">
+                  <Maximize className="h-4 w-4" />
+                  <span>{property.squareFeet.toLocaleString()} sq ft</span>
+                </div>
+              )}
+            </>
           )}
         </div>
       </CardContent>
