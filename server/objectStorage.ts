@@ -210,6 +210,29 @@ export class ObjectStorageService {
       requestedPermission: requestedPermission ?? ObjectPermission.READ,
     });
   }
+
+  async removeObjectAcl(objectPath: string): Promise<void> {
+    try {
+      const normalizedPath = this.normalizeObjectEntityPath(objectPath);
+      if (!normalizedPath.startsWith("/objects/")) {
+        return;
+      }
+      
+      const objectFile = await this.getObjectEntityFile(normalizedPath);
+      const [exists] = await objectFile.exists();
+      if (!exists) {
+        return;
+      }
+
+      await objectFile.setMetadata({
+        metadata: {
+          "custom:aclPolicy": null,
+        },
+      });
+    } catch (error) {
+      console.error("Error removing object ACL:", error);
+    }
+  }
 }
 
 function parseObjectPath(path: string): {

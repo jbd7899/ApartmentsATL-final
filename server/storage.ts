@@ -36,6 +36,8 @@ export interface IStorage {
 
   // Property image operations
   addPropertyImages(images: InsertPropertyImage[]): Promise<PropertyImage[]>;
+  getPropertyImage(imageId: string): Promise<PropertyImage | undefined>;
+  deletePropertyImage(imageId: string): Promise<void>;
   deletePropertyImages(propertyId: string): Promise<void>;
 
   // Unit operations
@@ -47,6 +49,8 @@ export interface IStorage {
 
   // Unit image operations
   addUnitImages(images: InsertUnitImage[]): Promise<UnitImage[]>;
+  getUnitImage(imageId: string): Promise<UnitImage | undefined>;
+  deleteUnitImage(imageId: string): Promise<void>;
   deleteUnitImages(unitId: string): Promise<void>;
 
   // Combined operations
@@ -158,6 +162,15 @@ export class DatabaseStorage implements IStorage {
     return inserted;
   }
 
+  async getPropertyImage(imageId: string): Promise<PropertyImage | undefined> {
+    const [image] = await db.select().from(propertyImages).where(eq(propertyImages.id, imageId));
+    return image;
+  }
+
+  async deletePropertyImage(imageId: string): Promise<void> {
+    await db.delete(propertyImages).where(eq(propertyImages.id, imageId));
+  }
+
   async deletePropertyImages(propertyId: string): Promise<void> {
     await db.delete(propertyImages).where(eq(propertyImages.propertyId, propertyId));
   }
@@ -220,6 +233,15 @@ export class DatabaseStorage implements IStorage {
       .values(images)
       .returning();
     return inserted;
+  }
+
+  async getUnitImage(imageId: string): Promise<UnitImage | undefined> {
+    const [image] = await db.select().from(unitImages).where(eq(unitImages.id, imageId));
+    return image;
+  }
+
+  async deleteUnitImage(imageId: string): Promise<void> {
+    await db.delete(unitImages).where(eq(unitImages.id, imageId));
   }
 
   async deleteUnitImages(unitId: string): Promise<void> {

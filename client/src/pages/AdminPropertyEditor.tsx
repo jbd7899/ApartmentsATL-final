@@ -41,6 +41,7 @@ export default function AdminPropertyEditor() {
   });
 
   const [uploadedImages, setUploadedImages] = useState<Array<{
+    id?: string;
     url: string;
     caption: string;
     isPrimary: boolean;
@@ -80,6 +81,7 @@ export default function AdminPropertyEditor() {
       });
       setUploadedImages(
         property.images.map(img => ({
+          id: img.id,
           url: img.imageUrl,
           caption: img.caption || "",
           isPrimary: img.isPrimary || false,
@@ -87,6 +89,37 @@ export default function AdminPropertyEditor() {
       );
     }
   }, [property]);
+
+  const deleteImageMutation = useMutation({
+    mutationFn: async (imageId: string) => {
+      return await apiRequest("DELETE", `/api/property-images/${imageId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/properties", propertyId] });
+      toast({
+        title: "Success",
+        description: "Image deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to delete image",
+        variant: "destructive",
+      });
+    },
+  });
 
   const saveMutation = useMutation({
     mutationFn: async (data: { property: InsertProperty; images: typeof uploadedImages }) => {
@@ -153,8 +186,12 @@ export default function AdminPropertyEditor() {
     });
   };
 
-  const handleRemoveImage = (index: number) => {
-    setUploadedImages(uploadedImages.filter((_, i) => i !== index));
+  const handleRemoveImage = (index: number, imageId?: string) => {
+    if (imageId) {
+      deleteImageMutation.mutate(imageId);
+    } else {
+      setUploadedImages(uploadedImages.filter((_, i) => i !== index));
+    }
   };
 
   const handleSetPrimaryImage = (index: number) => {
@@ -393,7 +430,7 @@ export default function AdminPropertyEditor() {
                     {uploadedImages.length > 0 && (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {uploadedImages.map((image, index) => (
-                          <div key={index} className="relative group">
+                          <div key={image.id || index} className="relative group">
                             <div className="relative aspect-[4/3] rounded-md overflow-hidden bg-muted">
                               <img
                                 src={image.url}
@@ -405,8 +442,9 @@ export default function AdminPropertyEditor() {
                                 variant="destructive"
                                 size="icon"
                                 className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={() => handleRemoveImage(index)}
-                                data-testid={`button-remove-image-${index}`}
+                                onClick={() => handleRemoveImage(index, image.id)}
+                                disabled={deleteImageMutation.isPending}
+                                data-testid={image.id ? `button-delete-image-${image.id}` : `button-remove-image-${index}`}
                               >
                                 <X className="h-4 w-4" />
                               </Button>

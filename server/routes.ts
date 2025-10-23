@@ -348,6 +348,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Image deletion routes
+  app.delete("/api/property-images/:imageId", isAuthenticated, async (req, res) => {
+    try {
+      const image = await storage.getPropertyImage(req.params.imageId);
+      if (!image) {
+        return res.status(404).json({ error: "Image not found" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      await objectStorageService.removeObjectAcl(image.imageUrl);
+      
+      await storage.deletePropertyImage(req.params.imageId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting property image:", error);
+      res.status(500).json({ error: "Failed to delete image" });
+    }
+  });
+
+  app.delete("/api/unit-images/:imageId", isAuthenticated, async (req, res) => {
+    try {
+      const image = await storage.getUnitImage(req.params.imageId);
+      if (!image) {
+        return res.status(404).json({ error: "Image not found" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      await objectStorageService.removeObjectAcl(image.imageUrl);
+      
+      await storage.deleteUnitImage(req.params.imageId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting unit image:", error);
+      res.status(500).json({ error: "Failed to delete image" });
+    }
+  });
+
   // Analytics routes
   app.post("/api/analytics/track-view/:propertyId", async (req, res) => {
     try {
