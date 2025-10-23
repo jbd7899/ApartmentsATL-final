@@ -98,14 +98,21 @@ export default function AdminDashboard() {
                 Manage your property portfolio
               </p>
             </div>
-            <Button asChild size="lg" data-testid="button-add-property">
-              <Link href="/admin/property/new">
-                <a className="flex items-center gap-2">
-                  <Plus className="h-5 w-5" />
-                  Add Property
-                </a>
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button asChild variant="outline" size="lg" data-testid="button-analytics">
+                <Link href="/admin/analytics">
+                  Analytics
+                </Link>
+              </Button>
+              <Button asChild size="lg" data-testid="button-add-property">
+                <Link href="/admin/property/new">
+                  <a className="flex items-center gap-2">
+                    <Plus className="h-5 w-5" />
+                    Add Property
+                  </a>
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {isLoading ? (

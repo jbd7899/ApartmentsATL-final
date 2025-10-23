@@ -15,7 +15,7 @@ export function Hero() {
 
       <div className="relative h-full container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center text-center">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 max-w-4xl">
-          Unique and architecturally charming urban living - Locally owned and managed.
+          Unique and architecturally charming urban living -Locally owned and managed.
         </h1>
         <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl">
           Family-owned and operated property management offering multifamily and single-family homes

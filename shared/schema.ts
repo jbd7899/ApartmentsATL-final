@@ -69,14 +69,31 @@ export const propertyImages = pgTable("property_images", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Property views table for analytics
+export const propertyViews = pgTable("property_views", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: varchar("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  viewedAt: timestamp("viewed_at").defaultNow().notNull(),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: varchar("user_agent", { length: 500 }),
+});
+
 // Relations
 export const propertiesRelations = relations(properties, ({ many }) => ({
   images: many(propertyImages),
+  views: many(propertyViews),
 }));
 
 export const propertyImagesRelations = relations(propertyImages, ({ one }) => ({
   property: one(properties, {
     fields: [propertyImages.propertyId],
+    references: [properties.id],
+  }),
+}));
+
+export const propertyViewsRelations = relations(propertyViews, ({ one }) => ({
+  property: one(properties, {
+    fields: [propertyViews.propertyId],
     references: [properties.id],
   }),
 }));
@@ -96,11 +113,18 @@ export const insertPropertyImageSchema = createInsertSchema(propertyImages).omit
   createdAt: true,
 });
 
+export const insertPropertyViewSchema = createInsertSchema(propertyViews).omit({
+  id: true,
+  viewedAt: true,
+});
+
 // Types
 export type Property = typeof properties.$inferSelect;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
 export type PropertyImage = typeof propertyImages.$inferSelect;
 export type InsertPropertyImage = z.infer<typeof insertPropertyImageSchema>;
+export type PropertyView = typeof propertyViews.$inferSelect;
+export type InsertPropertyView = z.infer<typeof insertPropertyViewSchema>;
 
 // Property with images type
 export type PropertyWithImages = Property & {

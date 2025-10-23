@@ -203,6 +203,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analytics routes
+  app.post("/api/analytics/track-view/:propertyId", async (req, res) => {
+    try {
+      const { propertyId } = req.params;
+      const ipAddress = req.ip || req.headers['x-forwarded-for']?.toString() || undefined;
+      const userAgent = req.headers['user-agent'];
+      
+      await storage.trackPropertyView(propertyId, ipAddress, userAgent);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error tracking property view:", error);
+      res.status(500).json({ error: "Failed to track view" });
+    }
+  });
+
+  app.get("/api/analytics/views/:propertyId", async (req, res) => {
+    try {
+      const count = await storage.getPropertyViewCount(req.params.propertyId);
+      res.json({ count });
+    } catch (error) {
+      console.error("Error fetching view count:", error);
+      res.status(500).json({ error: "Failed to fetch view count" });
+    }
+  });
+
+  app.get("/api/analytics/views", isAuthenticated, async (req, res) => {
+    try {
+      const viewCounts = await storage.getAllPropertyViewCounts();
+      res.json(viewCounts);
+    } catch (error) {
+      console.error("Error fetching all view counts:", error);
+      res.status(500).json({ error: "Failed to fetch view counts" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

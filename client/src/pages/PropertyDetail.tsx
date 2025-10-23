@@ -5,20 +5,31 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Bed, Bath, Maximize, ArrowLeft, ExternalLink } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, ArrowLeft, ExternalLink, Expand } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import type { PropertyWithImages } from "@shared/schema";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ImageLightbox } from "@/components/ImageLightbox";
 
 export default function PropertyDetail() {
   const params = useParams();
   const propertyId = params.id;
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   const { data: property, isLoading } = useQuery<PropertyWithImages>({
     queryKey: ["/api/properties", propertyId],
     enabled: !!propertyId,
   });
+
+  // Track property view
+  useEffect(() => {
+    if (property?.id) {
+      fetch(`/api/analytics/track-view/${property.id}`, {
+        method: "POST",
+      }).catch(err => console.error("Failed to track view:", err));
+    }
+  }, [property?.id]);
 
   if (isLoading) {
     return (
@@ -78,13 +89,21 @@ export default function PropertyDetail() {
             <div className="lg:col-span-2 space-y-6">
               {images.length > 0 && (
                 <div className="space-y-4">
-                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-muted">
+                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-muted group cursor-pointer"
+                       onClick={() => setIsLightboxOpen(true)}
+                  >
                     <img
                       src={selectedImage.imageUrl}
                       alt={selectedImage.caption || property.title}
                       className="w-full h-full object-cover"
                       data-testid="img-property-main"
                     />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="text-white flex items-center gap-2">
+                        <Expand className="h-6 w-6" />
+                        <span className="text-lg font-medium">View Full Screen</span>
+                      </div>
+                    </div>
                   </div>
 
                   {images.length > 1 && (
@@ -213,6 +232,15 @@ export default function PropertyDetail() {
         </div>
       </main>
       <Footer />
+      
+      <ImageLightbox
+        images={images}
+        currentIndex={selectedImageIndex}
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+        onPrevious={() => setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
+        onNext={() => setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
+      />
     </div>
   );
 }

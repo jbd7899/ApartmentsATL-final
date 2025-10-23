@@ -1,20 +1,24 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Home, Bed, Bath, Maximize } from "lucide-react";
+import { MapPin, Home, Bed, Bath, Maximize, Plus, Check } from "lucide-react";
 import { Link } from "wouter";
 import type { PropertyWithImages } from "@shared/schema";
+import { useComparison } from "@/contexts/ComparisonContext";
 
 interface PropertyCardProps {
   property: PropertyWithImages;
 }
 
 export function PropertyCard({ property }: PropertyCardProps) {
+  const { addToComparison, removeFromComparison, isInComparison, comparedProperties } = useComparison();
   const primaryImage = property.images.find(img => img.isPrimary) || property.images[0];
   const imageUrl = primaryImage?.imageUrl || "/api/placeholder/400/300";
 
   const locationLabel = property.location === "atlanta" ? "Atlanta, GA" : "Dallas, TX";
   const typeLabel = property.propertyType === "multifamily" ? "Multifamily" : "Single Family";
+  const inComparison = isInComparison(property.id);
+  const comparisonFull = comparedProperties.length >= 3 && !inComparison;
 
   return (
     <Card className="group hover-elevate overflow-hidden transition-all duration-300" data-testid={`card-property-${property.id}`}>
@@ -75,8 +79,8 @@ export function PropertyCard({ property }: PropertyCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="p-6 pt-0">
-        <Link href={`/property/${property.id}`} className="w-full">
+      <CardFooter className="p-6 pt-0 flex gap-2">
+        <Link href={`/property/${property.id}`} className="flex-1">
           <Button
             variant="outline"
             className="w-full"
@@ -85,6 +89,16 @@ export function PropertyCard({ property }: PropertyCardProps) {
             View Details
           </Button>
         </Link>
+        <Button
+          variant={inComparison ? "default" : "outline"}
+          size="icon"
+          onClick={() => inComparison ? removeFromComparison(property.id) : addToComparison(property)}
+          disabled={comparisonFull}
+          data-testid={`button-compare-${property.id}`}
+          title={inComparison ? "Remove from comparison" : comparisonFull ? "Maximum 3 properties" : "Add to comparison"}
+        >
+          {inComparison ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+        </Button>
       </CardFooter>
     </Card>
   );

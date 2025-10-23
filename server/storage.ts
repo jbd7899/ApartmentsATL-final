@@ -29,6 +29,11 @@ export interface IStorage {
   // Property image operations
   addPropertyImages(images: InsertPropertyImage[]): Promise<PropertyImage[]>;
   deletePropertyImages(propertyId: string): Promise<void>;
+
+  // Analytics operations
+  trackPropertyView(propertyId: string, ipAddress?: string, userAgent?: string): Promise<void>;
+  getPropertyViewCount(propertyId: string): Promise<number>;
+  getAllPropertyViewCounts(): Promise<Array<{ propertyId: string; viewCount: number }>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -127,6 +132,42 @@ export class DatabaseStorage implements IStorage {
 
   async deletePropertyImages(propertyId: string): Promise<void> {
     await db.delete(propertyImages).where(eq(propertyImages.propertyId, propertyId));
+  }
+
+  // Analytics operations
+  async trackPropertyView(propertyId: string, ipAddress?: string, userAgent?: string): Promise<void> {
+    const { propertyViews } = await import("@shared/schema");
+    await db.insert(propertyViews).values({
+      propertyId,
+      ipAddress: ipAddress || null,
+      userAgent: userAgent || null,
+    });
+  }
+
+  async getPropertyViewCount(propertyId: string): Promise<number> {
+    const { propertyViews } = await import("@shared/schema");
+    const { count } = await import("drizzle-orm");
+    const result = await db
+      .select({ count: count() })
+      .from(propertyViews)
+      .where(eq(propertyViews.propertyId, propertyId));
+    return Number(result[0]?.count || 0);
+  }
+
+  async getAllPropertyViewCounts(): Promise<Array<{ propertyId: string; viewCount: number }>> {
+    const { propertyViews } = await import("@shared/schema");
+    const { count, sql } = await import("drizzle-orm");
+    const result = await db
+      .select({
+        propertyId: propertyViews.propertyId,
+        viewCount: count(),
+      })
+      .from(propertyViews)
+      .groupBy(propertyViews.propertyId);
+    return result.map(r => ({
+      propertyId: r.propertyId,
+      viewCount: Number(r.viewCount),
+    }));
   }
 }
 
