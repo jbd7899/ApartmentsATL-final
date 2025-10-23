@@ -431,11 +431,11 @@ export default function AdminPropertyEditor() {
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {uploadedImages.map((image, index) => (
                           <div key={image.id || index} className="relative group">
-                            <div className="relative aspect-[4/3] rounded-md overflow-hidden bg-muted">
+                            <div className="relative aspect-[4/3] rounded-md bg-muted overflow-visible">
                               <img
                                 src={image.url}
                                 alt={`Property image ${index + 1}`}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover rounded-md"
                               />
                               <Button
                                 type="button"
