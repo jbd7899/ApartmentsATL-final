@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
-import { insertPropertySchema } from "@shared/schema";
+import { insertPropertySchema, insertUnitSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -200,6 +200,151 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting property:", error);
       res.status(500).json({ error: "Failed to delete property" });
+    }
+  });
+
+  // Unit routes
+  app.get("/api/properties/:propertyId/units", async (req, res) => {
+    try {
+      const units = await storage.getUnitsByPropertyId(req.params.propertyId);
+      res.json(units);
+    } catch (error) {
+      console.error("Error fetching units:", error);
+      res.status(500).json({ error: "Failed to fetch units" });
+    }
+  });
+
+  app.get("/api/units/:id", async (req, res) => {
+    try {
+      const unit = await storage.getUnit(req.params.id);
+      if (!unit) {
+        return res.status(404).json({ error: "Unit not found" });
+      }
+      res.json(unit);
+    } catch (error) {
+      console.error("Error fetching unit:", error);
+      res.status(500).json({ error: "Failed to fetch unit" });
+    }
+  });
+
+  app.post("/api/units", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const validation = insertUnitSchema.safeParse(req.body.unit);
+      if (!validation.success) {
+        return res.status(400).json({ error: "Invalid unit data", details: validation.error });
+      }
+
+      const unit = await storage.createUnit(validation.data);
+
+      // Handle image uploads with ACL
+      const objectStorageService = new ObjectStorageService();
+      const imageData = req.body.images || [];
+      const imageInserts = [];
+
+      for (let i = 0; i < imageData.length; i++) {
+        const image = imageData[i];
+        const normalizedPath = await objectStorageService.trySetObjectEntityAclPolicy(
+          image.url,
+          {
+            owner: userId,
+            visibility: "public",
+          }
+        );
+
+        imageInserts.push({
+          unitId: unit.id,
+          imageUrl: normalizedPath,
+          caption: image.caption || null,
+          isPrimary: image.isPrimary || false,
+          displayOrder: i,
+        });
+      }
+
+      if (imageInserts.length > 0) {
+        await storage.addUnitImages(imageInserts);
+      }
+
+      const savedUnit = await storage.getUnit(unit.id);
+      res.status(201).json(savedUnit);
+    } catch (error) {
+      console.error("Error creating unit:", error);
+      res.status(500).json({ error: "Failed to create unit" });
+    }
+  });
+
+  app.patch("/api/units/:id", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const partialSchema = insertUnitSchema.deepPartial();
+      const validation = partialSchema.safeParse(req.body.unit);
+      if (!validation.success) {
+        return res.status(400).json({ error: "Invalid unit data", details: validation.error });
+      }
+
+      const unit = await storage.updateUnit(req.params.id, validation.data);
+      if (!unit) {
+        return res.status(404).json({ error: "Unit not found" });
+      }
+
+      // Handle image updates
+      await storage.deleteUnitImages(unit.id);
+
+      const objectStorageService = new ObjectStorageService();
+      const imageData = req.body.images || [];
+      const imageInserts = [];
+
+      for (let i = 0; i < imageData.length; i++) {
+        const image = imageData[i];
+        const normalizedPath = await objectStorageService.trySetObjectEntityAclPolicy(
+          image.url,
+          {
+            owner: userId,
+            visibility: "public",
+          }
+        );
+
+        imageInserts.push({
+          unitId: unit.id,
+          imageUrl: normalizedPath,
+          caption: image.caption || null,
+          isPrimary: image.isPrimary || false,
+          displayOrder: i,
+        });
+      }
+
+      if (imageInserts.length > 0) {
+        await storage.addUnitImages(imageInserts);
+      }
+
+      const updatedUnit = await storage.getUnit(unit.id);
+      res.json(updatedUnit);
+    } catch (error) {
+      console.error("Error updating unit:", error);
+      res.status(500).json({ error: "Failed to update unit" });
+    }
+  });
+
+  app.delete("/api/units/:id", isAuthenticated, async (req, res) => {
+    try {
+      const unit = await storage.getUnit(req.params.id);
+      if (!unit) {
+        return res.status(404).json({ error: "Unit not found" });
+      }
+
+      await storage.deleteUnit(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting unit:", error);
+      res.status(500).json({ error: "Failed to delete unit" });
     }
   });
 
