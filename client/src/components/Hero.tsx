@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { MapPin, Building2 } from "lucide-react";
 import { Link } from "wouter";
-import heroImage from "@assets/generated_images/Luxury_apartment_building_hero_1639ee20.png";
+import heroImage from "@assets/Westview_JTP_4541_1761242520164.jpg";
 
 export function Hero() {
   return (
@@ -10,7 +10,7 @@ export function Hero() {
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/50 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
       </div>
 
       <div className="relative h-full container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center text-center">
