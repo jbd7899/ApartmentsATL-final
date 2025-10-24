@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { insertPropertySchema, insertUnitSchema } from "@shared/schema";
@@ -47,7 +47,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/objects/upload", isAuthenticated, async (req, res) => {
+  app.post("/api/objects/upload", isAdmin, async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
@@ -82,7 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/properties", isAuthenticated, async (req: any, res) => {
+  app.post("/api/properties", isAdmin, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {
@@ -132,7 +132,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/properties/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/properties/:id", isAdmin, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {
@@ -188,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/properties/:id", isAuthenticated, async (req, res) => {
+  app.delete("/api/properties/:id", isAdmin, async (req, res) => {
     try {
       const property = await storage.getProperty(req.params.id);
       if (!property) {
@@ -227,7 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/units", isAuthenticated, async (req: any, res) => {
+  app.post("/api/units", isAdmin, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {
@@ -277,7 +277,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/units/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/units/:id", isAdmin, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {
@@ -333,7 +333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/units/:id", isAuthenticated, async (req, res) => {
+  app.delete("/api/units/:id", isAdmin, async (req, res) => {
     try {
       const unit = await storage.getUnit(req.params.id);
       if (!unit) {
@@ -349,7 +349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Image deletion routes
-  app.delete("/api/property-images/:imageId", isAuthenticated, async (req, res) => {
+  app.delete("/api/property-images/:imageId", isAdmin, async (req, res) => {
     try {
       const image = await storage.getPropertyImage(req.params.imageId);
       if (!image) {
@@ -367,7 +367,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/unit-images/:imageId", isAuthenticated, async (req, res) => {
+  app.delete("/api/unit-images/:imageId", isAdmin, async (req, res) => {
     try {
       const image = await storage.getUnitImage(req.params.imageId);
       if (!image) {
@@ -410,7 +410,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/analytics/views", isAuthenticated, async (req, res) => {
+  app.get("/api/analytics/views", isAdmin, async (req, res) => {
     try {
       const viewCounts = await storage.getAllPropertyViewCounts();
       res.json(viewCounts);

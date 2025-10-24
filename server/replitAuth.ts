@@ -155,3 +155,50 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     return;
   }
 };
+
+// Get list of authorized admin emails from environment variable
+function getAuthorizedAdminEmails(): string[] {
+  const adminEmails = process.env.ADMIN_EMAILS || "";
+  return adminEmails
+    .split(",")
+    .map(email => email.trim().toLowerCase())
+    .filter(email => email.length > 0);
+}
+
+// Middleware to check if authenticated user is an authorized admin
+export const isAdmin: RequestHandler = async (req, res, next) => {
+  const user = req.user as any;
+
+  // First check if user is authenticated
+  if (!req.isAuthenticated() || !user.expires_at) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  if (now > user.expires_at) {
+    const refreshToken = user.refresh_token;
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const config = await getOidcConfig();
+      const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
+      updateUserSession(user, tokenResponse);
+    } catch (error) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+  }
+
+  // Check if user's email is in the authorized admin list
+  const authorizedEmails = getAuthorizedAdminEmails();
+  const userEmail = user.claims?.email?.toLowerCase();
+
+  if (!userEmail || !authorizedEmails.includes(userEmail)) {
+    return res.status(403).json({ 
+      message: "Forbidden: You do not have permission to access this resource" 
+    });
+  }
+
+  return next();
+};

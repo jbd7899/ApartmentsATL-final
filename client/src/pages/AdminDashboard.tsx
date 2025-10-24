@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Header } from "@/components/Header";
@@ -6,16 +6,17 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Loader2, MapPin } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, MapPin, ShieldAlert } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { isUnauthorizedError } from "@/lib/authUtils";
+import { isUnauthorizedError, isForbiddenError } from "@/lib/authUtils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { PropertyWithImages } from "@shared/schema";
 
 export default function AdminDashboard() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const [isForbidden, setIsForbidden] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -30,10 +31,24 @@ export default function AdminDashboard() {
     }
   }, [isAuthenticated, authLoading, toast]);
 
-  const { data: properties, isLoading } = useQuery<PropertyWithImages[]>({
+  const { data: properties, isLoading, error } = useQuery<PropertyWithImages[]>({
     queryKey: ["/api/properties"],
     enabled: isAuthenticated,
+    retry: (failureCount, error) => {
+      // Don't retry on 403 Forbidden errors
+      if (isForbiddenError(error as Error)) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
+
+  // Check if the error is a 403 Forbidden
+  useEffect(() => {
+    if (error && isForbiddenError(error as Error)) {
+      setIsForbidden(true);
+    }
+  }, [error]);
 
   const deleteMutation = useMutation({
     mutationFn: async (propertyId: string) => {
@@ -76,6 +91,37 @@ export default function AdminDashboard() {
 
   if (!isAuthenticated) {
     return null;
+  }
+
+  // Show forbidden message if user is authenticated but not authorized
+  if (isForbidden) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <Card className="max-w-md mx-4">
+            <CardContent className="py-12 text-center space-y-4">
+              <ShieldAlert className="h-16 w-16 mx-auto text-destructive" />
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-2">
+                  Access Denied
+                </h2>
+                <p className="text-muted-foreground">
+                  You do not have permission to access the admin panel. 
+                  Only authorized family members can manage properties.
+                </p>
+              </div>
+              <Button asChild>
+                <Link href="/">
+                  <a>Return to Home</a>
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   const handleDelete = (propertyId: string, title: string) => {
