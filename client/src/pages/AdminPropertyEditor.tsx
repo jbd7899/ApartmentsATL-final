@@ -415,7 +415,7 @@ export default function AdminPropertyEditor() {
                     <div>
                       <Label htmlFor="architecturalStyle">Architectural Style (Optional)</Label>
                       <Select
-                        value={formData.architecturalStyle || ""}
+                        value={formData.architecturalStyle || undefined}
                         onValueChange={(value) =>
                           setFormData({ ...formData, architecturalStyle: value })
                         }
@@ -424,7 +424,6 @@ export default function AdminPropertyEditor() {
                           <SelectValue placeholder="Select a style..." />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
                           <SelectItem value="Victorian Charmer">Victorian Charmer</SelectItem>
                           <SelectItem value="Craftsman Bungalow">Craftsman Bungalow</SelectItem>
                           <SelectItem value="Art Deco">Art Deco</SelectItem>
