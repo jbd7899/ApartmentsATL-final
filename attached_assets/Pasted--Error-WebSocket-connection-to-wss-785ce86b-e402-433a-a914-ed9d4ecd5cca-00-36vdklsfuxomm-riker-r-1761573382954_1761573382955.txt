@@ -1,0 +1,40 @@
+[Error] WebSocket connection to 'wss://785ce86b-e402-433a-a914-ed9d4ecd5cca-00-36vdklsfuxomm.riker.replit.dev/?token=gQ6pgguGWkqV' failed: WebSocket is closed due to suspension.
+[Info] Successfully preconnected to https://fonts.googleapis.com/
+[Info] Successfully preconnected to https://fonts.gstatic.com/
+[Error] Failed to load resource: You do not have permission to access the requested resource.
+[Debug] [vite] connecting... (client, line 495)
+[Debug] [vite] connected. (client, line 618)
+[Error] Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+a
+a
+@https://785ce86b-e402-433a-a914-ed9d4ecd5cca-00-36vdklsfuxomm.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:205:27
+Slot.SlotClone@https://785ce86b-e402-433a-a914-ed9d4ecd5cca-00-36vdklsfuxomm.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js:79:45
+Slot.Slot@https://785ce86b-e402-433a-a914-ed9d4ecd5cca-00-36vdklsfuxomm.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-EVLBUYTV.js:56:45
+_c@https://785ce86b-e402-433a-a914-ed9d4ecd5cca-00-36vdklsfuxomm.riker.replit.dev/src/components/ui/button.tsx:54:20
+div
+div
+div
+main
+div
+AdminDashboard@https://785ce86b-e402-433a-a914-ed9d4ecd5cca-00-36vdklsfuxomm.riker.replit.dev/src/pages/AdminDashboard.tsx:33:29
+Route@https://785ce86b-e402-433a-a914-ed9d4ecd5cca-00-36vdklsfuxomm.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:191:20
+Switch@https://785ce86b-e402-433a-a914-ed9d4ecd5cca-00-36vdklsfuxomm.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:247:25
+Router
+ComparisonProvider@https://785ce86b-e402-433a-a914-ed9d4ecd5cca-00-36vdklsfuxomm.riker.replit.dev/src/contexts/ComparisonContext.tsx:20:46
+TooltipProviderProvider@https://785ce86b-e402-433a-a914-ed9d4ecd5cca-00-36vdklsfuxomm.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-M3NVYRND.js:48:52
+TooltipProvider@https://785ce86b-e402-433a-a914-ed9d4ecd5cca-00-36vdklsfuxomm.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js:64:12
+QueryClientProvider@https://785ce86b-e402-433a-a914-ed9d4ecd5cca-00-36vdklsfuxomm.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js:2805:9
+App
+	printWarning (chunk-RPCDYKBN.js:521)
+	error (chunk-RPCDYKBN.js:505)
+	validateDOMNesting (chunk-RPCDYKBN.js:8256)
+	createInstance (chunk-RPCDYKBN.js:8328)
+	completeWork (chunk-RPCDYKBN.js:16290)
+	completeUnitOfWork (chunk-RPCDYKBN.js:19224)
+	performUnitOfWork (chunk-RPCDYKBN.js:19206)
+	workLoopSync (chunk-RPCDYKBN.js:19137)
+	renderRootSync (chunk-RPCDYKBN.js:19116)
+	performSyncWorkOnRoot (chunk-RPCDYKBN.js:18874)
+	flushSyncCallbacks (chunk-RPCDYKBN.js:9119)
+	(anonymous function) (chunk-RPCDYKBN.js:18627)
+[Error] Failed to load resource: the server responded with a status of 401 (Unauthorized) (1f9e37aa-e645-4257-879b-cdc19e25b05c, line 0)
