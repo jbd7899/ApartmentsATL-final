@@ -373,13 +373,15 @@ export default function PropertyDetail() {
                         </div>
                         <span className="font-medium text-foreground">{unit.bathrooms}</span>
                       </div>
-                      {unit.squareFeet && (
+                      {unit.squareFeet != null && (
                         <div className="flex items-center justify-between text-sm">
                           <div className="flex items-center gap-2 text-muted-foreground">
                             <Maximize className="h-4 w-4" />
                             <span>Sq Ft</span>
                           </div>
-                          <span className="font-medium text-foreground">{unit.squareFeet.toLocaleString()}</span>
+                          <span className="font-medium text-foreground">
+                            {unit.squareFeet === 0 ? "Sq Ft Not available" : unit.squareFeet.toLocaleString()}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -525,13 +527,15 @@ export default function PropertyDetail() {
                     </div>
                     <p className="text-lg font-semibold text-foreground">{selectedUnit.bathrooms}</p>
                   </div>
-                  {selectedUnit.squareFeet && (
+                  {selectedUnit.squareFeet != null && (
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 text-muted-foreground text-sm">
                         <Maximize className="h-4 w-4" />
                         <span>Square Feet</span>
                       </div>
-                      <p className="text-lg font-semibold text-foreground">{selectedUnit.squareFeet.toLocaleString()}</p>
+                      <p className="text-lg font-semibold text-foreground">
+                        {selectedUnit.squareFeet === 0 ? "Sq Ft Not available" : selectedUnit.squareFeet.toLocaleString()}
+                      </p>
                     </div>
                   )}
                 </div>

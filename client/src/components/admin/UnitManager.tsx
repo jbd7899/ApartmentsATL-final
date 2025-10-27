@@ -184,10 +184,10 @@ export function UnitManager({ propertyId }: UnitManagerProps) {
                     <Bath className="h-3 w-3 mr-1" />
                     {unit.bathrooms} {unit.bathrooms === 1 ? "Bath" : "Baths"}
                   </Badge>
-                  {unit.squareFeet && (
+                  {unit.squareFeet != null && (
                     <Badge variant="secondary" data-testid={`badge-sqft-${unit.id}`}>
                       <Maximize2 className="h-3 w-3 mr-1" />
-                      {unit.squareFeet} sqft
+                      {unit.squareFeet === 0 ? "Sq Ft Not available" : `${unit.squareFeet} sqft`}
                     </Badge>
                   )}
                   {unit.youtubeUrl && (
