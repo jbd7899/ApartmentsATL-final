@@ -203,7 +203,7 @@ export function Hero() {
             <Button
               size="lg"
               variant="default"
-              className="bg-primary border border-primary-border hover:bg-primary text-primary-foreground flex items-center gap-2 w-full sm:w-auto"
+              className="texture-linen bg-primary border-2 border-accent/60 hover:border-accent shadow-lg hover:shadow-accent/20 text-primary-foreground flex items-center gap-2 w-full sm:w-auto transition-all duration-300 hover:scale-[1.02]"
               data-testid="button-view-atlanta"
             >
               <MapPin className="h-5 w-5" />
@@ -213,8 +213,8 @@ export function Hero() {
           <Link href="/dallas">
             <Button
               size="lg"
-              variant="outline"
-              className="bg-background/20 backdrop-blur-md border-white/30 text-white hover:bg-background/30 flex items-center gap-2 w-full sm:w-auto"
+              variant="ghost"
+              className="bg-background/10 backdrop-blur-md border-2 border-accent/40 hover:border-accent/70 hover:bg-accent/10 text-white shadow-md hover:shadow-accent/15 flex items-center gap-2 w-full sm:w-auto transition-all duration-300 hover:scale-[1.02]"
               data-testid="button-view-dallas"
             >
               <Building2 className="h-5 w-5" />
