@@ -51,6 +51,8 @@ export const properties = pgTable("properties", {
   squareFeet: integer("square_feet"),
   youtubeUrl: varchar("youtube_url", { length: 500 }),
   featured: boolean("featured").default(false),
+  architecturalStyle: varchar("architectural_style", { length: 100 }),
+  features: text("features").array(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => ({

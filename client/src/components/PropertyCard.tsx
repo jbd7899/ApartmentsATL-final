@@ -28,14 +28,15 @@ export function PropertyCard({ property }: PropertyCardProps) {
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           data-testid={`img-property-${property.id}`}
         />
+        <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black/30" />
         <div className="absolute top-3 right-3 flex gap-2">
           {property.featured && (
             <Badge variant="default" className="bg-primary text-primary-foreground">
               Featured
             </Badge>
           )}
-          <Badge variant="secondary" data-testid={`badge-type-${property.id}`}>
-            {typeLabel}
+          <Badge className="bg-accent/80 backdrop-blur-sm text-accent-foreground border border-accent-border" data-testid={`badge-type-${property.id}`}>
+            {property.architecturalStyle || typeLabel}
           </Badge>
         </div>
       </div>
@@ -54,9 +55,19 @@ export function PropertyCard({ property }: PropertyCardProps) {
           </div>
         )}
 
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-          {property.description}
-        </p>
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {property.features && property.features.length > 0 ? (
+            property.features.slice(0, 3).map((feature, idx) => (
+              <Badge key={idx} variant="secondary" className="text-xs" data-testid={`badge-feature-${idx}-${property.id}`}>
+                {feature}
+              </Badge>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground line-clamp-2" data-testid={`text-description-${property.id}`}>
+              {property.description}
+            </p>
+          )}
+        </div>
 
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           {property.propertyType === "multifamily" ? (

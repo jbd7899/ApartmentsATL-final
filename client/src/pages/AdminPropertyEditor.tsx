@@ -38,6 +38,8 @@ export default function AdminPropertyEditor() {
     squareFeet: null,
     youtubeUrl: "",
     featured: false,
+    architecturalStyle: "",
+    features: [],
   });
 
   const [uploadedImages, setUploadedImages] = useState<Array<{
@@ -78,6 +80,8 @@ export default function AdminPropertyEditor() {
         squareFeet: property.squareFeet,
         youtubeUrl: property.youtubeUrl || "",
         featured: property.featured || false,
+        architecturalStyle: property.architecturalStyle || "",
+        features: property.features || [],
       });
       setUploadedImages(
         property.images.map(img => ({
@@ -406,6 +410,48 @@ export default function AdminPropertyEditor() {
                           data-testid="input-sqft"
                         />
                       </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="architecturalStyle">Architectural Style (Optional)</Label>
+                      <Select
+                        value={formData.architecturalStyle || ""}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, architecturalStyle: value })
+                        }
+                      >
+                        <SelectTrigger id="architecturalStyle" data-testid="select-architectural-style">
+                          <SelectValue placeholder="Select a style..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="Victorian Charmer">Victorian Charmer</SelectItem>
+                          <SelectItem value="Craftsman Bungalow">Craftsman Bungalow</SelectItem>
+                          <SelectItem value="Art Deco">Art Deco</SelectItem>
+                          <SelectItem value="Industrial Loft">Industrial Loft</SelectItem>
+                          <SelectItem value="Modern">Modern</SelectItem>
+                          <SelectItem value="Historic Cottage">Historic Cottage</SelectItem>
+                          <SelectItem value="Multifamily Building">Multifamily Building</SelectItem>
+                          <SelectItem value="Single Family Home">Single Family Home</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="features">Features (Optional)</Label>
+                      <Textarea
+                        id="features"
+                        value={formData.features?.join(", ") || ""}
+                        onChange={(e) => {
+                          const featuresArray = e.target.value
+                            ? e.target.value.split(",").map(f => f.trim()).filter(f => f)
+                            : [];
+                          setFormData({ ...formData, features: featuresArray });
+                        }}
+                        placeholder="Original hardwood floors, Art-deco tile work, Exposed brick (comma-separated)"
+                        rows={3}
+                        data-testid="input-features"
+                      />
                     </div>
 
                     <div>
