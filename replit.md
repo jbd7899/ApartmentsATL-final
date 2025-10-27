@@ -46,6 +46,8 @@ Preferred communication style: Simple, everyday language.
 - Responsive design with mobile-first approach using Tailwind breakpoints
 - Dark mode support built into the theming system
 - Accessibility-focused using Radix UI primitives
+- Architectural charm emphasis: PropertyCard components spotlight unique character through architectural style badges (Victorian Charmer, Craftsman Bungalow, etc.) and curated feature highlights replacing generic descriptions
+- Vignette overlays on property images add subtle depth and professional polish
 
 ### Backend Architecture
 
@@ -117,7 +119,7 @@ Preferred communication style: Simple, everyday language.
 **Schema Design:**
 - `users` table: Stores user profiles from Replit Auth (id, email, name, profile image)
 - `sessions` table: Manages authentication sessions
-- `properties` table: Core property data (title, description, location, type, bedrooms, bathrooms, etc.)
+- `properties` table: Core property data (title, description, location, type, bedrooms, bathrooms, architecturalStyle, features array, etc.)
 - `property_images` table: Property photos with captions and primary flag
 - `units` table: Individual units within multifamily properties (unitNumber, bedrooms, bathrooms, squareFeet, features, youtubeUrl)
 - `unit_images` table: Unit-specific photos with captions and primary flag
