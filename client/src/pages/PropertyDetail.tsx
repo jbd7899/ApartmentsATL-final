@@ -82,7 +82,7 @@ export default function PropertyDetail() {
   const selectedImage = images[selectedImageIndex] || images[0];
 
   const getYouTubeEmbedUrl = (url: string) => {
-    const videoIdMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?\s]+)/);
+    const videoIdMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([^&?\s]+)/);
     if (videoIdMatch && videoIdMatch[1]) {
       return `https://www.youtube.com/embed/${videoIdMatch[1]}`;
     }
