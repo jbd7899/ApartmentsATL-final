@@ -24,8 +24,16 @@ Preferred communication style: Simple, everyday language.
 **UI Component System:**
 - Radix UI primitives for accessible, unstyled components
 - shadcn/ui component library configured in "new-york" style
-- Custom design system defined in `design_guidelines.md` with specific color palettes for light/dark modes
-- Inter font family via Google Fonts CDN for typography
+- Custom design system in `client/src/index.css` with Atlanta-inspired palette:
+  - Warm brick red primary colors (hue 10°) inspired by historic Atlanta architecture
+  - Brass/gold accent colors (hue 42°) for metallic warmth
+  - Cream plaster backgrounds replacing stark whites
+  - Rich warm browns for foreground text
+  - Both light and dark modes maintain the warm, inviting character
+- Typography system:
+  - Playfair Display serif font for headings (elegant, classic)
+  - Inter sans-serif for body text (modern, readable)
+- Reusable texture utilities: `.texture-paper` and `.texture-linen` for subtle backgrounds
 
 **State Management:**
 - React Query handles all server state, caching, and synchronization
