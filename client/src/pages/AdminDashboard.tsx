@@ -113,7 +113,7 @@ export default function AdminDashboard() {
               </div>
               <Button asChild>
                 <Link href="/">
-                  <a>Return to Home</a>
+                  Return to Home
                 </Link>
               </Button>
             </CardContent>
@@ -156,11 +156,9 @@ export default function AdminDashboard() {
                 </Link>
               </Button>
               <Button asChild size="lg" data-testid="button-add-property">
-                <Link href="/admin/property/new">
-                  <a className="flex items-center gap-2">
-                    <Plus className="h-5 w-5" />
-                    Add Property
-                  </a>
+                <Link href="/admin/property/new" className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  Add Property
                 </Link>
               </Button>
             </div>
@@ -178,7 +176,7 @@ export default function AdminDashboard() {
                 </p>
                 <Button asChild>
                   <Link href="/admin/property/new">
-                    <a>Add Your First Property</a>
+                    Add Your First Property
                   </Link>
                 </Button>
               </CardContent>
@@ -233,11 +231,9 @@ export default function AdminDashboard() {
                               asChild
                               data-testid={`button-edit-${property.id}`}
                             >
-                              <Link href={`/admin/property/${property.id}`}>
-                                <a className="flex items-center gap-2">
-                                  <Pencil className="h-4 w-4" />
-                                  Edit
-                                </a>
+                              <Link href={`/admin/property/${property.id}`} className="flex items-center gap-2">
+                                <Pencil className="h-4 w-4" />
+                                Edit
                               </Link>
                             </Button>
                             <Button
