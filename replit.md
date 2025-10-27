@@ -64,6 +64,7 @@ Preferred communication style: Simple, everyday language.
 **API Structure:**
 - RESTful endpoints for properties CRUD operations
 - Unit management endpoints (`/api/properties/:id/units`, `/api/units/:id`)
+- Hero images endpoints (`/api/hero-images`, `/api/hero-images/:id`, `/api/hero-images/reorder`)
 - Analytics endpoints (`/api/analytics/track-view/:id`, `/api/analytics/top-properties`)
 - Authentication endpoints (`/api/auth/user`)
 - Object storage endpoints for image upload/download (`/objects/*`, `/api/objects/upload`)
@@ -97,6 +98,15 @@ Preferred communication style: Simple, everyday language.
 - Admin analytics dashboard showing top properties by views
 - Page view tracking on PropertyDetail component
 
+**Hero Images Management System:**
+- Dedicated carousel image management for the homepage hero section
+- Admin UI for uploading, reordering, and deleting hero images (limit 4 images)
+- Drag-and-drop reordering with optimistic updates and rollback on error
+- Auto-playing carousel with smooth fade transitions (5s intervals)
+- Pause/play controls and keyboard navigation (arrow keys, spacebar)
+- ARIA live regions and accessibility labels for screen readers
+- Seeded with default hero image from existing assets
+
 ### Data Storage
 
 **Database:**
@@ -112,6 +122,7 @@ Preferred communication style: Simple, everyday language.
 - `units` table: Individual units within multifamily properties (unitNumber, bedrooms, bathrooms, squareFeet, features, youtubeUrl)
 - `unit_images` table: Unit-specific photos with captions and primary flag
 - `property_views` table: Analytics tracking for property page views with timestamps and session IDs
+- `hero_images` table: Carousel images for homepage hero section (imageUrl, displayOrder)
 - Relationships: properties → property_images (one-to-many), properties → units (one-to-many), units → unit_images (one-to-many)
 
 **Data Access Layer:**
