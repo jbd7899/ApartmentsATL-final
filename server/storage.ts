@@ -4,6 +4,7 @@ import {
   propertyImages,
   units,
   unitImages,
+  heroImages,
   type User,
   type UpsertUser,
   type Property,
@@ -17,6 +18,8 @@ import {
   type InsertUnitImage,
   type UnitWithImages,
   type PropertyWithUnitsAndImages,
+  type HeroImage,
+  type InsertHeroImage,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
@@ -60,6 +63,12 @@ export interface IStorage {
   trackPropertyView(propertyId: string, ipAddress?: string, userAgent?: string): Promise<void>;
   getPropertyViewCount(propertyId: string): Promise<number>;
   getAllPropertyViewCounts(): Promise<Array<{ propertyId: string; viewCount: number }>>;
+
+  // Hero images operations
+  getAllHeroImages(): Promise<HeroImage[]>;
+  createHeroImage(data: InsertHeroImage): Promise<HeroImage>;
+  deleteHeroImage(id: string): Promise<void>;
+  reorderHeroImages(imageIds: string[]): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -320,6 +329,35 @@ export class DatabaseStorage implements IStorage {
       propertyId: r.propertyId,
       viewCount: Number(r.viewCount),
     }));
+  }
+
+  // Hero images operations
+  async getAllHeroImages(): Promise<HeroImage[]> {
+    const images = await db.query.heroImages.findMany({
+      orderBy: (heroImages, { asc }) => [asc(heroImages.displayOrder)],
+    });
+    return images;
+  }
+
+  async createHeroImage(data: InsertHeroImage): Promise<HeroImage> {
+    const [image] = await db
+      .insert(heroImages)
+      .values(data)
+      .returning();
+    return image;
+  }
+
+  async deleteHeroImage(id: string): Promise<void> {
+    await db.delete(heroImages).where(eq(heroImages.id, id));
+  }
+
+  async reorderHeroImages(imageIds: string[]): Promise<void> {
+    for (let i = 0; i < imageIds.length; i++) {
+      await db
+        .update(heroImages)
+        .set({ displayOrder: i })
+        .where(eq(heroImages.id, imageIds[i]));
+    }
   }
 }
 

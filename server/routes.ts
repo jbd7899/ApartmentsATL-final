@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
-import { insertPropertySchema, insertUnitSchema } from "@shared/schema";
+import { insertPropertySchema, insertUnitSchema, insertHeroImageSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -417,6 +417,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching all view counts:", error);
       res.status(500).json({ error: "Failed to fetch view counts" });
+    }
+  });
+
+  // Hero images routes
+  app.get("/api/hero-images", async (req, res) => {
+    try {
+      const images = await storage.getAllHeroImages();
+      res.json(images);
+    } catch (error) {
+      console.error("Error fetching hero images:", error);
+      res.status(500).json({ error: "Failed to fetch hero images" });
+    }
+  });
+
+  app.post("/api/hero-images", isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      // Check current count to enforce 4-image limit
+      const currentImages = await storage.getAllHeroImages();
+      if (currentImages.length >= 4) {
+        return res.status(400).json({ error: "Maximum of 4 hero images allowed" });
+      }
+
+      const validation = insertHeroImageSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: "Invalid hero image data", details: validation.error });
+      }
+
+      // Set ACL for the image
+      const objectStorageService = new ObjectStorageService();
+      const normalizedPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        validation.data.imageUrl,
+        {
+          owner: userId,
+          visibility: "public",
+        }
+      );
+
+      const image = await storage.createHeroImage({
+        ...validation.data,
+        imageUrl: normalizedPath,
+      });
+
+      res.status(201).json(image);
+    } catch (error) {
+      console.error("Error creating hero image:", error);
+      res.status(500).json({ error: "Failed to create hero image" });
+    }
+  });
+
+  app.delete("/api/hero-images/:id", isAdmin, async (req, res) => {
+    try {
+      await storage.deleteHeroImage(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting hero image:", error);
+      res.status(500).json({ error: "Failed to delete hero image" });
+    }
+  });
+
+  app.patch("/api/hero-images/reorder", isAdmin, async (req, res) => {
+    try {
+      const { imageIds } = req.body;
+      if (!Array.isArray(imageIds)) {
+        return res.status(400).json({ error: "imageIds must be an array" });
+      }
+
+      await storage.reorderHeroImages(imageIds);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error reordering hero images:", error);
+      res.status(500).json({ error: "Failed to reorder hero images" });
     }
   });
 

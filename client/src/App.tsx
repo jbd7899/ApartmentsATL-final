@@ -15,6 +15,7 @@ import About from "@/pages/About";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminPropertyEditor from "@/pages/AdminPropertyEditor";
 import AdminAnalytics from "@/pages/AdminAnalytics";
+import HeroSettings from "@/pages/HeroSettings";
 
 function Router() {
   return (
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/analytics" component={AdminAnalytics} />
+      <Route path="/admin/hero" component={HeroSettings} />
       <Route path="/admin/property/:id" component={AdminPropertyEditor} />
       <Route component={NotFound} />
     </Switch>

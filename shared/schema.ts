@@ -103,6 +103,14 @@ export const unitImages = pgTable("unit_images", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Hero images table
+export const heroImages = pgTable("hero_images", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  imageUrl: varchar("image_url", { length: 1000 }).notNull(),
+  displayOrder: integer("display_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const propertiesRelations = relations(properties, ({ many }) => ({
   images: many(propertyImages),
@@ -170,6 +178,11 @@ export const insertUnitImageSchema = createInsertSchema(unitImages).omit({
   createdAt: true,
 });
 
+export const insertHeroImageSchema = createInsertSchema(heroImages).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type Property = typeof properties.$inferSelect;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
@@ -181,6 +194,8 @@ export type Unit = typeof units.$inferSelect;
 export type InsertUnit = z.infer<typeof insertUnitSchema>;
 export type UnitImage = typeof unitImages.$inferSelect;
 export type InsertUnitImage = z.infer<typeof insertUnitImageSchema>;
+export type HeroImage = typeof heroImages.$inferSelect;
+export type InsertHeroImage = z.infer<typeof insertHeroImageSchema>;
 
 // Property with images type
 export type PropertyWithImages = Property & {

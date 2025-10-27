@@ -150,6 +150,11 @@ export default function AdminDashboard() {
                   Analytics
                 </Link>
               </Button>
+              <Button asChild variant="outline" size="lg" data-testid="button-hero-images">
+                <Link href="/admin/hero">
+                  Hero Images
+                </Link>
+              </Button>
               <Button asChild size="lg" data-testid="button-add-property">
                 <Link href="/admin/property/new">
                   <a className="flex items-center gap-2">
