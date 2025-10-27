@@ -33,7 +33,7 @@ export default function PropertyDetail() {
       if (!response.ok) throw new Error("Failed to fetch units");
       return response.json();
     },
-    enabled: !!propertyId && property?.propertyType === "multifamily",
+    enabled: !!propertyId,
   });
 
   // Track property view
@@ -89,8 +89,11 @@ export default function PropertyDetail() {
     return url;
   };
 
-  const renderSingleFamilyView = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  const renderSingleFamilyView = () => {
+    const unitsWithVideos = units.filter(u => u.youtubeUrl);
+    
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2 space-y-6">
         {images.length > 0 && (
           <div className="space-y-4">
@@ -151,6 +154,26 @@ export default function PropertyDetail() {
             </CardContent>
           </Card>
         )}
+
+        {unitsWithVideos.map((unit, index) => (
+          <Card key={unit.id}>
+            <CardContent className="p-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4">
+                {unitsWithVideos.length > 1 ? `Unit ${unit.unitNumber} Tour` : 'Unit Tour'}
+              </h2>
+              <div className="relative aspect-video rounded-lg overflow-hidden">
+                <iframe
+                  src={getYouTubeEmbedUrl(unit.youtubeUrl!)}
+                  title={`Unit ${unit.unitNumber} Video Tour`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                  data-testid={`iframe-unit-video-${index}`}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
 
         <Card>
           <CardContent className="p-6">
@@ -216,7 +239,8 @@ export default function PropertyDetail() {
         </Card>
       </div>
     </div>
-  );
+    );
+  };
 
   const renderMultifamilyView = () => (
     <div className="space-y-8">
