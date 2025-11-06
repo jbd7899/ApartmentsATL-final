@@ -144,7 +144,7 @@ export default function AdminDashboard() {
                 Manage your property portfolio
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline" size="lg" data-testid="button-analytics">
                 <Link href="/admin/analytics">
                   Analytics
@@ -153,6 +153,11 @@ export default function AdminDashboard() {
               <Button asChild variant="outline" size="lg" data-testid="button-hero-images">
                 <Link href="/admin/hero">
                   Hero Images
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" data-testid="button-apartment-finder-admin">
+                <Link href="/admin/apartment-finder">
+                  Submissions
                 </Link>
               </Button>
               <Button asChild size="lg" data-testid="button-add-property">

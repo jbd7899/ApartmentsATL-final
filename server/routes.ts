@@ -6,6 +6,7 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { insertPropertySchema, insertUnitSchema, insertHeroImageSchema, insertApartmentFinderSubmissionSchema } from "@shared/schema";
 import { z } from "zod";
+import { sendApartmentFinderNotification } from "./emailService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -505,6 +506,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const submission = await storage.createApartmentFinderSubmission(validation.data);
+      
+      // Send email notification (don't wait for it to complete)
+      sendApartmentFinderNotification(submission).catch(err => {
+        console.error("Failed to send email notification:", err);
+      });
+
       res.status(201).json(submission);
     } catch (error) {
       console.error("Error creating apartment finder submission:", error);

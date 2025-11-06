@@ -16,6 +16,8 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import AdminPropertyEditor from "@/pages/AdminPropertyEditor";
 import AdminAnalytics from "@/pages/AdminAnalytics";
 import HeroSettings from "@/pages/HeroSettings";
+import ApartmentFinder from "@/pages/ApartmentFinder";
+import AdminApartmentFinder from "@/pages/AdminApartmentFinder";
 
 function Router() {
   return (
@@ -26,9 +28,11 @@ function Router() {
       <Route path="/property/:id" component={PropertyDetail} />
       <Route path="/compare" component={PropertyComparison} />
       <Route path="/about" component={About} />
+      <Route path="/apartment-finder" component={ApartmentFinder} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/analytics" component={AdminAnalytics} />
       <Route path="/admin/hero" component={HeroSettings} />
+      <Route path="/admin/apartment-finder" component={AdminApartmentFinder} />
       <Route path="/admin/property/:id" component={AdminPropertyEditor} />
       <Route component={NotFound} />
     </Switch>

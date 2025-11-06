@@ -52,6 +52,15 @@ export function Header() {
                 About
               </Link>
             </nav>
+            
+            <Button
+              variant="default"
+              size="sm"
+              asChild
+              data-testid="button-apartment-finder"
+            >
+              <Link href="/apartment-finder">Apartment Finder</Link>
+            </Button>
           </div>
 
           <div className="flex items-center gap-3">
