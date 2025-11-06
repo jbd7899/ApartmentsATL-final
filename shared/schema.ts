@@ -113,6 +113,28 @@ export const heroImages = pgTable("hero_images", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Apartment Finder submissions table
+export const apartmentFinderSubmissions = pgTable("apartment_finder_submissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }).notNull(),
+  preferredArea: varchar("preferred_area", { length: 100 }).notNull(),
+  minBedrooms: varchar("min_bedrooms", { length: 50 }).notNull(),
+  minBathrooms: varchar("min_bathrooms", { length: 50 }).notNull(),
+  amenities: text("amenities"),
+  maxBudget: integer("max_budget").notNull(),
+  moveInMonth: varchar("move_in_month", { length: 50 }).notNull(),
+  hasPet: boolean("has_pet").notNull().default(false),
+  petDetails: text("pet_details"),
+  hasCar: boolean("has_car").notNull().default(false),
+  additionalInfo: text("additional_info"),
+  status: varchar("status", { length: 50 }).notNull().default("unread").$type<"unread" | "contacted">(),
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+}, (table) => ({
+  statusCheck: sql`CHECK (${table.status} IN ('unread', 'contacted'))`,
+}));
+
 // Relations
 export const propertiesRelations = relations(properties, ({ many }) => ({
   images: many(propertyImages),
@@ -185,6 +207,13 @@ export const insertHeroImageSchema = createInsertSchema(heroImages).omit({
   createdAt: true,
 });
 
+export const insertApartmentFinderSubmissionSchema = createInsertSchema(apartmentFinderSubmissions).omit({
+  id: true,
+  submittedAt: true,
+}).extend({
+  status: z.enum(["unread", "contacted"]).optional(),
+});
+
 // Types
 export type Property = typeof properties.$inferSelect;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
@@ -198,6 +227,8 @@ export type UnitImage = typeof unitImages.$inferSelect;
 export type InsertUnitImage = z.infer<typeof insertUnitImageSchema>;
 export type HeroImage = typeof heroImages.$inferSelect;
 export type InsertHeroImage = z.infer<typeof insertHeroImageSchema>;
+export type ApartmentFinderSubmission = typeof apartmentFinderSubmissions.$inferSelect;
+export type InsertApartmentFinderSubmission = z.infer<typeof insertApartmentFinderSubmissionSchema>;
 
 // Property with images type
 export type PropertyWithImages = Property & {

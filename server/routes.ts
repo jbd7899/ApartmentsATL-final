@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
-import { insertPropertySchema, insertUnitSchema, insertHeroImageSchema } from "@shared/schema";
+import { insertPropertySchema, insertUnitSchema, insertHeroImageSchema, insertApartmentFinderSubmissionSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -493,6 +493,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error reordering hero images:", error);
       res.status(500).json({ error: "Failed to reorder hero images" });
+    }
+  });
+
+  // Apartment finder routes
+  app.post("/api/apartment-finder", async (req, res) => {
+    try {
+      const validation = insertApartmentFinderSubmissionSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: "Invalid submission data", details: validation.error });
+      }
+
+      const submission = await storage.createApartmentFinderSubmission(validation.data);
+      res.status(201).json(submission);
+    } catch (error) {
+      console.error("Error creating apartment finder submission:", error);
+      res.status(500).json({ error: "Failed to create submission" });
+    }
+  });
+
+  app.get("/api/apartment-finder", isAdmin, async (req, res) => {
+    try {
+      const submissions = await storage.getAllApartmentFinderSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      console.error("Error fetching apartment finder submissions:", error);
+      res.status(500).json({ error: "Failed to fetch submissions" });
+    }
+  });
+
+  app.patch("/api/apartment-finder/:id/status", isAdmin, async (req, res) => {
+    try {
+      const { status } = req.body;
+      if (!status || !["unread", "contacted"].includes(status)) {
+        return res.status(400).json({ error: "Invalid status. Must be 'unread' or 'contacted'" });
+      }
+
+      const submission = await storage.updateApartmentFinderSubmissionStatus(req.params.id, status);
+      if (!submission) {
+        return res.status(404).json({ error: "Submission not found" });
+      }
+
+      res.json(submission);
+    } catch (error) {
+      console.error("Error updating submission status:", error);
+      res.status(500).json({ error: "Failed to update submission status" });
     }
   });
 

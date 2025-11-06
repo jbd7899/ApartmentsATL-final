@@ -5,6 +5,7 @@ import {
   units,
   unitImages,
   heroImages,
+  apartmentFinderSubmissions,
   type User,
   type UpsertUser,
   type Property,
@@ -20,6 +21,8 @@ import {
   type PropertyWithUnitsAndImages,
   type HeroImage,
   type InsertHeroImage,
+  type ApartmentFinderSubmission,
+  type InsertApartmentFinderSubmission,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
@@ -69,6 +72,11 @@ export interface IStorage {
   createHeroImage(data: InsertHeroImage): Promise<HeroImage>;
   deleteHeroImage(id: string): Promise<void>;
   reorderHeroImages(imageIds: string[]): Promise<void>;
+
+  // Apartment finder submissions operations
+  createApartmentFinderSubmission(data: InsertApartmentFinderSubmission): Promise<ApartmentFinderSubmission>;
+  getAllApartmentFinderSubmissions(): Promise<ApartmentFinderSubmission[]>;
+  updateApartmentFinderSubmissionStatus(id: string, status: "unread" | "contacted"): Promise<ApartmentFinderSubmission | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -358,6 +366,31 @@ export class DatabaseStorage implements IStorage {
         .set({ displayOrder: i })
         .where(eq(heroImages.id, imageIds[i]));
     }
+  }
+
+  // Apartment finder submissions operations
+  async createApartmentFinderSubmission(data: InsertApartmentFinderSubmission): Promise<ApartmentFinderSubmission> {
+    const [submission] = await db
+      .insert(apartmentFinderSubmissions)
+      .values(data)
+      .returning();
+    return submission;
+  }
+
+  async getAllApartmentFinderSubmissions(): Promise<ApartmentFinderSubmission[]> {
+    const submissions = await db.query.apartmentFinderSubmissions.findMany({
+      orderBy: (submissions, { desc }) => [desc(submissions.submittedAt)],
+    });
+    return submissions;
+  }
+
+  async updateApartmentFinderSubmissionStatus(id: string, status: "unread" | "contacted"): Promise<ApartmentFinderSubmission | undefined> {
+    const [submission] = await db
+      .update(apartmentFinderSubmissions)
+      .set({ status })
+      .where(eq(apartmentFinderSubmissions.id, id))
+      .returning();
+    return submission;
   }
 }
 
