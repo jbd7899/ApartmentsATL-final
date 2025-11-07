@@ -58,7 +58,7 @@ export async function sendApartmentFinderNotification(submission: ApartmentFinde
 
   try {
     await resend.emails.send({
-      from: 'Apartment Finder <onboarding@resend.dev>',
+      from: 'Apartment Finder <admin@apartmentsatl.com>',
       to: adminEmail,
       subject: `New Apartment Inquiry - ${submission.name}`,
       html: htmlContent,
