@@ -116,23 +116,11 @@ export default function ApartmentFinder() {
                 <CheckCircle2 className="w-8 h-8 text-primary" />
               </div>
               <CardTitle className="text-2xl">Thank You!</CardTitle>
-              <CardDescription>
+              <CardDescription className="pb-6">
                 Your apartment finder application has been submitted successfully.
                 We'll review your requirements and email you back with available apartments that fit your needs.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button
-                onClick={() => {
-                  setSubmitted(false);
-                  form.reset();
-                }}
-                className="w-full"
-                data-testid="button-submit-another"
-              >
-                Submit Another Application
-              </Button>
-            </CardContent>
           </Card>
         </main>
         <Footer />
