@@ -19,6 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import unitPlaceholder from "@assets/image-coming-soon-placeholder.png_1762874402820.webp";
 
 interface UnitManagerProps {
   propertyId: string;
@@ -165,15 +166,16 @@ export function UnitManager({ propertyId }: UnitManagerProps) {
                 )}
               </CardHeader>
               <CardContent className="space-y-3">
-                {unit.images.length > 0 && (
-                  <div className="relative aspect-[4/3] rounded-md overflow-hidden bg-muted">
-                    <img
-                      src={unit.images.find(img => img.isPrimary)?.imageUrl || unit.images[0].imageUrl}
-                      alt={`Unit ${unit.unitNumber}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
+                <div className="relative aspect-[4/3] rounded-md overflow-hidden bg-muted">
+                  <img
+                    src={unit.images.length > 0 
+                      ? (unit.images.find(img => img.isPrimary)?.imageUrl || unit.images[0].imageUrl)
+                      : unitPlaceholder
+                    }
+                    alt={`Unit ${unit.unitNumber}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
                 
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary" data-testid={`badge-bedrooms-${unit.id}`}>

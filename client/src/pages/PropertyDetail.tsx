@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import type { PropertyWithImages, UnitWithImages } from "@shared/schema";
 import { useState, useEffect } from "react";
 import { ImageLightbox } from "@/components/ImageLightbox";
+import unitPlaceholder from "@assets/image-coming-soon-placeholder.png_1762874402820.webp";
 
 export default function PropertyDetail() {
   const params = useParams();
@@ -344,16 +345,14 @@ export default function PropertyDetail() {
 
               return (
                 <Card key={unit.id} className="overflow-hidden hover-elevate" data-testid={`card-unit-${unit.id}`}>
-                  {thumbnailImage && (
-                    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                      <img
-                        src={thumbnailImage.imageUrl}
-                        alt={`Unit ${unit.unitNumber}`}
-                        className="w-full h-full object-cover"
-                        data-testid={`img-unit-${unit.id}`}
-                      />
-                    </div>
-                  )}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                    <img
+                      src={thumbnailImage ? thumbnailImage.imageUrl : unitPlaceholder}
+                      alt={`Unit ${unit.unitNumber}`}
+                      className="w-full h-full object-cover"
+                      data-testid={`img-unit-${unit.id}`}
+                    />
+                  </div>
                   <CardHeader className="p-4">
                     <h3 className="text-xl font-bold text-foreground mb-3" data-testid={`text-unit-number-${unit.id}`}>
                       Unit {unit.unitNumber}
@@ -449,48 +448,48 @@ export default function PropertyDetail() {
             
             <div className="space-y-6">
               {/* Unit Images */}
-              {selectedUnit.images.length > 0 && (
-                <div className="space-y-4">
-                  <div 
-                    className="relative aspect-[4/3] rounded-lg overflow-hidden bg-muted group cursor-pointer"
-                    onClick={() => setIsUnitLightboxOpen(true)}
-                  >
-                    <img
-                      src={selectedUnit.images[selectedUnitImageIndex]?.imageUrl}
-                      alt={selectedUnit.images[selectedUnitImageIndex]?.caption || `Unit ${selectedUnit.unitNumber}`}
-                      className="w-full h-full object-cover"
-                      data-testid="img-unit-detail-main"
-                    />
+              <div className="space-y-4">
+                <div 
+                  className={`relative aspect-[4/3] rounded-lg overflow-hidden bg-muted ${selectedUnit.images.length > 0 ? 'group cursor-pointer' : ''}`}
+                  onClick={selectedUnit.images.length > 0 ? () => setIsUnitLightboxOpen(true) : undefined}
+                >
+                  <img
+                    src={selectedUnit.images.length > 0 ? selectedUnit.images[selectedUnitImageIndex]?.imageUrl : unitPlaceholder}
+                    alt={selectedUnit.images[selectedUnitImageIndex]?.caption || `Unit ${selectedUnit.unitNumber}`}
+                    className="w-full h-full object-cover"
+                    data-testid="img-unit-detail-main"
+                  />
+                  {selectedUnit.images.length > 0 && (
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <div className="text-white flex items-center gap-2">
                         <Expand className="h-6 w-6" />
                         <span className="text-lg font-medium">View Full Screen</span>
                       </div>
                     </div>
-                  </div>
-
-                  {selectedUnit.images.length > 1 && (
-                    <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
-                      {selectedUnit.images.map((image, index) => (
-                        <button
-                          key={image.id}
-                          onClick={() => setSelectedUnitImageIndex(index)}
-                          className={`relative aspect-[4/3] rounded-md overflow-hidden hover-elevate transition-all ${
-                            selectedUnitImageIndex === index ? 'ring-2 ring-primary' : ''
-                          }`}
-                          data-testid={`button-unit-image-${index}`}
-                        >
-                          <img
-                            src={image.imageUrl}
-                            alt={image.caption || `Image ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
                   )}
                 </div>
-              )}
+
+                {selectedUnit.images.length > 1 && (
+                  <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
+                    {selectedUnit.images.map((image, index) => (
+                      <button
+                        key={image.id}
+                        onClick={() => setSelectedUnitImageIndex(index)}
+                        className={`relative aspect-[4/3] rounded-md overflow-hidden hover-elevate transition-all ${
+                          selectedUnitImageIndex === index ? 'ring-2 ring-primary' : ''
+                        }`}
+                        data-testid={`button-unit-image-${index}`}
+                      >
+                        <img
+                          src={image.imageUrl}
+                          alt={image.caption || `Image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Unit Video */}
               {selectedUnit.youtubeUrl && (
