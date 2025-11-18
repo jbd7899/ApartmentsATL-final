@@ -4,10 +4,18 @@ import type { ApartmentFinderSubmission } from '@shared/schema';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendApartmentFinderNotification(submission: ApartmentFinderSubmission): Promise<void> {
-  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminEmailsRaw = process.env.ADMIN_EMAIL;
   
-  if (!adminEmail) {
+  if (!adminEmailsRaw) {
     console.error('ADMIN_EMAIL not configured');
+    return;
+  }
+
+  // Support comma-separated email addresses
+  const adminEmails = adminEmailsRaw.split(',').map(email => email.trim()).filter(email => email.length > 0);
+  
+  if (adminEmails.length === 0) {
+    console.error('ADMIN_EMAIL contains no valid email addresses');
     return;
   }
 
@@ -59,7 +67,7 @@ export async function sendApartmentFinderNotification(submission: ApartmentFinde
   try {
     await resend.emails.send({
       from: 'Apartment Finder <admin@apartmentsatl.com>',
-      to: adminEmail,
+      to: adminEmails,
       subject: `New Apartment Inquiry - ${submission.name}`,
       html: htmlContent,
     });
