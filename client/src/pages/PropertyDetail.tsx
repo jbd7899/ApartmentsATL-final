@@ -79,7 +79,7 @@ export default function PropertyDetail() {
 
   const locationLabel = property.location === "atlanta" ? "Intown Atlanta, GA" : "East Dallas, TX";
   const typeLabel = property.propertyType === "multifamily" ? "Multifamily" : "Single Family";
-  const images = property.images.sort((a, b) => (a.isPrimary ? -1 : b.isPrimary ? 1 : a.displayOrder - b.displayOrder));
+  const images = property.images.sort((a, b) => (a.isPrimary ? -1 : b.isPrimary ? 1 : (a.displayOrder ?? 0) - (b.displayOrder ?? 0)));
   const selectedImage = images[selectedImageIndex] || images[0];
 
   const getYouTubeEmbedUrl = (url: string) => {
@@ -339,7 +339,7 @@ export default function PropertyDetail() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {units.map((unit) => {
               const unitImages = unit.images.sort((a, b) => 
-                (a.isPrimary ? -1 : b.isPrimary ? 1 : a.displayOrder - b.displayOrder)
+                (a.isPrimary ? -1 : b.isPrimary ? 1 : (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
               );
               const thumbnailImage = unitImages[0];
 
@@ -491,8 +491,10 @@ export default function PropertyDetail() {
                 )}
               </div>
 
-              {/* Unit Video */}
-              {selectedUnit.youtubeUrl && (
+              {/* Unit Video - only show if valid YouTube URL */}
+              {selectedUnit.youtubeUrl && 
+               selectedUnit.youtubeUrl.toLowerCase() !== "null" && 
+               selectedUnit.youtubeUrl.includes("youtube") && (
                 <div>
                   <h3 className="text-lg font-semibold text-foreground mb-3">Unit Tour</h3>
                   <div className="relative aspect-video rounded-lg overflow-hidden">
