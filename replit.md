@@ -89,6 +89,16 @@ Preferred communication style: Simple, everyday language.
 - Public UI displays units in responsive grid with detail modals
 - Conditional rendering: multifamily properties show unit grid, single-family properties show traditional layout
 
+**Bulk Photo Upload System:**
+- Dedicated admin page at `/admin/bulk-photos` for efficient photo management
+- Property and unit selection dropdowns for quick navigation
+- Upload multiple photos at once (up to 50 per session, 15MB per file)
+- Drag-and-drop reordering of photos
+- Caption editing for each photo
+- Primary photo designation
+- Zod validation on backend to ensure data integrity
+- Protection against accidental data loss (requires at least one image)
+
 **Property Comparison Feature:**
 - Context-based comparison system allowing users to compare up to 4 properties
 - Comparison bar component showing selected properties
