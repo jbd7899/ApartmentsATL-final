@@ -56,10 +56,24 @@ export default function AdminBulkPhotoUpload() {
     enabled: !!selectedPropertyId && isAuthenticated,
   });
 
+  const selectedProperty = properties?.find(p => p.id === selectedPropertyId);
   const selectedUnit = units?.find(u => u.id === selectedUnitId);
+  const isMultifamily = selectedProperty?.propertyType === "multifamily";
 
+  // Load images when property or unit selection changes
   useEffect(() => {
-    if (selectedUnit) {
+    if (selectedProperty && !isMultifamily) {
+      // Single-family: load property images
+      setUploadedImages(
+        selectedProperty.images.map(img => ({
+          id: img.id,
+          url: img.imageUrl,
+          caption: img.caption || "",
+          isPrimary: img.isPrimary || false,
+        }))
+      );
+    } else if (selectedUnit) {
+      // Multifamily: load unit images
       setUploadedImages(
         selectedUnit.images.map(img => ({
           id: img.id,
@@ -71,19 +85,61 @@ export default function AdminBulkPhotoUpload() {
     } else {
       setUploadedImages([]);
     }
-  }, [selectedUnit]);
+  }, [selectedProperty, selectedUnit, isMultifamily]);
 
+  // Reset when property changes
   useEffect(() => {
     setSelectedUnitId("");
-    setUploadedImages([]);
   }, [selectedPropertyId]);
 
-  const saveImagesMutation = useMutation({
+  // Save mutation for unit images
+  const saveUnitImagesMutation = useMutation({
     mutationFn: async (data: { unitId: string; images: UploadedImage[] }) => {
       return await apiRequest("POST", `/api/units/${data.unitId}/bulk-images`, { images: data.images });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/properties", selectedPropertyId, "units"] });
+      toast({
+        title: "Success",
+        description: "Photos saved successfully",
+      });
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      if (isForbiddenError(error)) {
+        toast({
+          title: "Access Denied",
+          description: "You do not have permission to upload photos.",
+          variant: "destructive",
+        });
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to save photos",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Save mutation for property images
+  const savePropertyImagesMutation = useMutation({
+    mutationFn: async (data: { propertyId: string; images: UploadedImage[] }) => {
+      return await apiRequest("POST", `/api/properties/${data.propertyId}/bulk-images`, { images: data.images });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/properties", selectedPropertyId] });
       toast({
         title: "Success",
         description: "Photos saved successfully",
@@ -203,16 +259,31 @@ export default function AdminBulkPhotoUpload() {
   };
 
   const handleSavePhotos = () => {
-    if (!selectedUnitId) {
-      toast({
-        title: "Error",
-        description: "Please select an apartment first",
-        variant: "destructive",
-      });
-      return;
+    if (isMultifamily) {
+      if (!selectedUnitId) {
+        toast({
+          title: "Error",
+          description: "Please select an apartment first",
+          variant: "destructive",
+        });
+        return;
+      }
+      saveUnitImagesMutation.mutate({ unitId: selectedUnitId, images: uploadedImages });
+    } else {
+      if (!selectedPropertyId) {
+        toast({
+          title: "Error",
+          description: "Please select a property first",
+          variant: "destructive",
+        });
+        return;
+      }
+      savePropertyImagesMutation.mutate({ propertyId: selectedPropertyId, images: uploadedImages });
     }
-    saveImagesMutation.mutate({ unitId: selectedUnitId, images: uploadedImages });
   };
+
+  const isSaving = saveUnitImagesMutation.isPending || savePropertyImagesMutation.isPending;
+  const canShowPhotoSection = selectedProperty && (!isMultifamily || selectedUnitId);
 
   if (authLoading) {
     return (
@@ -225,8 +296,6 @@ export default function AdminBulkPhotoUpload() {
   if (!isAuthenticated) {
     return null;
   }
-
-  const selectedProperty = properties?.find(p => p.id === selectedPropertyId);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -245,7 +314,7 @@ export default function AdminBulkPhotoUpload() {
               Bulk Photo Upload
             </h1>
             <p className="text-muted-foreground">
-              Upload multiple photos for apartments quickly and easily
+              Upload multiple photos for properties and apartments quickly and easily
             </p>
           </div>
 
@@ -253,7 +322,7 @@ export default function AdminBulkPhotoUpload() {
             <div className="lg:col-span-1">
               <Card className="sticky top-20">
                 <CardHeader>
-                  <CardTitle>Select Apartment</CardTitle>
+                  <CardTitle>Select Property</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
@@ -273,7 +342,7 @@ export default function AdminBulkPhotoUpload() {
                         ) : (
                           properties?.map((property) => (
                             <SelectItem key={property.id} value={property.id}>
-                              {property.title}
+                              {property.title} ({property.propertyType === "multifamily" ? "Multi" : "Single"})
                             </SelectItem>
                           ))
                         )}
@@ -281,7 +350,7 @@ export default function AdminBulkPhotoUpload() {
                     </Select>
                   </div>
 
-                  {selectedPropertyId && (
+                  {selectedPropertyId && isMultifamily && (
                     <div>
                       <Label htmlFor="unit">Apartment / Unit</Label>
                       <Select
@@ -312,18 +381,18 @@ export default function AdminBulkPhotoUpload() {
                     </div>
                   )}
 
-                  {selectedUnit && (
+                  {canShowPhotoSection && (
                     <div className="pt-4 border-t">
                       <div className="text-sm text-muted-foreground mb-2">
                         Current photos: {uploadedImages.length}
                       </div>
                       <Button
                         onClick={handleSavePhotos}
-                        disabled={saveImagesMutation.isPending}
+                        disabled={isSaving || uploadedImages.length === 0}
                         className="w-full"
                         data-testid="button-save-photos"
                       >
-                        {saveImagesMutation.isPending ? (
+                        {isSaving ? (
                           <>
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                             Saving...
@@ -342,12 +411,14 @@ export default function AdminBulkPhotoUpload() {
             </div>
 
             <div className="lg:col-span-3">
-              {!selectedUnitId ? (
+              {!canShowPhotoSection ? (
                 <Card>
                   <CardContent className="py-20 text-center">
                     <ImagePlus className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
                     <p className="text-lg text-muted-foreground">
-                      Select a property and apartment to start uploading photos
+                      {!selectedPropertyId 
+                        ? "Select a property to start uploading photos"
+                        : "Select an apartment to start uploading photos"}
                     </p>
                   </CardContent>
                 </Card>
@@ -356,10 +427,12 @@ export default function AdminBulkPhotoUpload() {
                   <CardHeader className="flex flex-row items-center justify-between gap-4">
                     <div>
                       <CardTitle>
-                        Photos for Unit {selectedUnit?.unitNumber}
+                        {isMultifamily 
+                          ? `Photos for Unit ${selectedUnit?.unitNumber}`
+                          : `Photos for ${selectedProperty?.title}`}
                       </CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {selectedProperty?.title}
+                        {isMultifamily ? selectedProperty?.title : selectedProperty?.address}
                       </p>
                     </div>
                     <ObjectUploader

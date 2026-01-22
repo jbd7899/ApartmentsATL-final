@@ -204,6 +204,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bulk image upload for properties
+  const bulkPropertyImageSchema = z.object({
+    images: z.array(z.object({
+      id: z.string().optional(),
+      url: z.string().min(1, "Image URL is required"),
+      caption: z.string().optional().default(""),
+      isPrimary: z.boolean().optional().default(false),
+    })),
+  });
+
+  app.post("/api/properties/:id/bulk-images", isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const property = await storage.getProperty(req.params.id);
+      if (!property) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+
+      // Validate the request body
+      const validation = bulkPropertyImageSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: "Invalid image data", details: validation.error });
+      }
+
+      const imageData = validation.data.images;
+
+      // Only delete existing images if we have new images to add (prevent accidental data loss)
+      if (imageData.length === 0) {
+        return res.status(400).json({ error: "At least one image is required" });
+      }
+
+      // Delete existing images
+      await storage.deletePropertyImages(property.id);
+
+      const objectStorageService = new ObjectStorageService();
+      const imageInserts = [];
+
+      for (let i = 0; i < imageData.length; i++) {
+        const image = imageData[i];
+        const normalizedPath = await objectStorageService.trySetObjectEntityAclPolicy(
+          image.url,
+          {
+            owner: userId,
+            visibility: "public",
+          }
+        );
+
+        imageInserts.push({
+          propertyId: property.id,
+          imageUrl: normalizedPath,
+          caption: image.caption || null,
+          isPrimary: image.isPrimary || false,
+          displayOrder: i,
+        });
+      }
+
+      if (imageInserts.length > 0) {
+        await storage.addPropertyImages(imageInserts);
+      }
+
+      const updatedProperty = await storage.getProperty(property.id);
+      res.json(updatedProperty);
+    } catch (error) {
+      console.error("Error saving bulk property images:", error);
+      res.status(500).json({ error: "Failed to save images" });
+    }
+  });
+
   // Unit routes
   app.get("/api/properties/:propertyId/units", async (req, res) => {
     try {
