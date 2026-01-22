@@ -18,6 +18,7 @@ import AdminAnalytics from "@/pages/AdminAnalytics";
 import HeroSettings from "@/pages/HeroSettings";
 import ApartmentFinder from "@/pages/ApartmentFinder";
 import AdminApartmentFinder from "@/pages/AdminApartmentFinder";
+import AdminBulkPhotoUpload from "@/pages/AdminBulkPhotoUpload";
 
 function Router() {
   return (
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/admin/analytics" component={AdminAnalytics} />
       <Route path="/admin/hero" component={HeroSettings} />
       <Route path="/admin/apartment-finder" component={AdminApartmentFinder} />
+      <Route path="/admin/bulk-photos" component={AdminBulkPhotoUpload} />
       <Route path="/admin/property/:id" component={AdminPropertyEditor} />
       <Route component={NotFound} />
     </Switch>

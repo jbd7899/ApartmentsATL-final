@@ -349,6 +349,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bulk image upload for units
+  const bulkImageSchema = z.object({
+    images: z.array(z.object({
+      id: z.string().optional(),
+      url: z.string().min(1, "Image URL is required"),
+      caption: z.string().optional().default(""),
+      isPrimary: z.boolean().optional().default(false),
+    })),
+  });
+
+  app.post("/api/units/:id/bulk-images", isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const unit = await storage.getUnit(req.params.id);
+      if (!unit) {
+        return res.status(404).json({ error: "Unit not found" });
+      }
+
+      // Validate the request body
+      const validation = bulkImageSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: "Invalid image data", details: validation.error });
+      }
+
+      const imageData = validation.data.images;
+
+      // Only delete existing images if we have new images to add (prevent accidental data loss)
+      if (imageData.length === 0) {
+        return res.status(400).json({ error: "At least one image is required" });
+      }
+
+      // Delete existing images
+      await storage.deleteUnitImages(unit.id);
+
+      const objectStorageService = new ObjectStorageService();
+      const imageInserts = [];
+
+      for (let i = 0; i < imageData.length; i++) {
+        const image = imageData[i];
+        const normalizedPath = await objectStorageService.trySetObjectEntityAclPolicy(
+          image.url,
+          {
+            owner: userId,
+            visibility: "public",
+          }
+        );
+
+        imageInserts.push({
+          unitId: unit.id,
+          imageUrl: normalizedPath,
+          caption: image.caption || null,
+          isPrimary: image.isPrimary || false,
+          displayOrder: i,
+        });
+      }
+
+      if (imageInserts.length > 0) {
+        await storage.addUnitImages(imageInserts);
+      }
+
+      const updatedUnit = await storage.getUnit(unit.id);
+      res.json(updatedUnit);
+    } catch (error) {
+      console.error("Error saving bulk images:", error);
+      res.status(500).json({ error: "Failed to save images" });
+    }
+  });
+
   // Image deletion routes
   app.delete("/api/property-images/:imageId", isAdmin, async (req, res) => {
     try {

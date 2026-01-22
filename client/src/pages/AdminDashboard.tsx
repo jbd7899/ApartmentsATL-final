@@ -160,6 +160,11 @@ export default function AdminDashboard() {
                   Submissions
                 </Link>
               </Button>
+              <Button asChild variant="outline" size="lg" data-testid="button-bulk-photos">
+                <Link href="/admin/bulk-photos">
+                  Bulk Photos
+                </Link>
+              </Button>
               <Button asChild size="lg" data-testid="button-add-property">
                 <Link href="/admin/property/new" className="flex items-center gap-2">
                   <Plus className="h-5 w-5" />

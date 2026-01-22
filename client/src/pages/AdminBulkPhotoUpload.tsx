@@ -12,7 +12,7 @@ import { ObjectUploader } from "@/components/ObjectUploader";
 import { ArrowLeft, Upload, X, Loader2, GripVertical, Star, ImagePlus, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { isUnauthorizedError } from "@/lib/authUtils";
+import { isUnauthorizedError, isForbiddenError } from "@/lib/authUtils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { PropertyWithImages, UnitWithImages } from "@shared/schema";
 import type { UploadResult } from "@uppy/core";
@@ -101,6 +101,14 @@ export default function AdminBulkPhotoUpload() {
         }, 500);
         return;
       }
+      if (isForbiddenError(error)) {
+        toast({
+          title: "Access Denied",
+          description: "You do not have permission to upload photos.",
+          variant: "destructive",
+        });
+        return;
+      }
       toast({
         title: "Error",
         description: "Failed to save photos",
@@ -126,12 +134,22 @@ export default function AdminBulkPhotoUpload() {
 
   const handleUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     const successfulUploads = result.successful || [];
-    const newImages = successfulUploads.map((file) => ({
+    const newImages = successfulUploads.map((file, idx) => ({
       url: file.uploadURL || "",
       caption: "",
-      isPrimary: uploadedImages.length === 0 && successfulUploads.indexOf(file) === 0,
+      isPrimary: false,
     }));
-    setUploadedImages([...uploadedImages, ...newImages]);
+    
+    // Use functional setState to avoid race conditions with quick successive uploads
+    setUploadedImages((prevImages) => {
+      const updatedImages = [...prevImages, ...newImages];
+      // Set first image as primary if no primary exists
+      if (!updatedImages.some(img => img.isPrimary) && updatedImages.length > 0) {
+        updatedImages[0].isPrimary = true;
+      }
+      return updatedImages;
+    });
+    
     toast({
       title: "Success",
       description: `${successfulUploads.length} photo(s) uploaded successfully`,
@@ -139,16 +157,19 @@ export default function AdminBulkPhotoUpload() {
   };
 
   const handleRemoveImage = (index: number) => {
-    const newImages = uploadedImages.filter((_, i) => i !== index);
-    if (uploadedImages[index].isPrimary && newImages.length > 0) {
-      newImages[0].isPrimary = true;
-    }
-    setUploadedImages(newImages);
+    setUploadedImages((prevImages) => {
+      const newImages = prevImages.filter((_, i) => i !== index);
+      // If we removed the primary image, set the first remaining as primary
+      if (prevImages[index]?.isPrimary && newImages.length > 0) {
+        newImages[0].isPrimary = true;
+      }
+      return newImages;
+    });
   };
 
   const handleSetPrimaryImage = (index: number) => {
-    setUploadedImages(
-      uploadedImages.map((img, i) => ({
+    setUploadedImages((prevImages) =>
+      prevImages.map((img, i) => ({
         ...img,
         isPrimary: i === index,
       }))
@@ -156,8 +177,8 @@ export default function AdminBulkPhotoUpload() {
   };
 
   const handleCaptionChange = (index: number, caption: string) => {
-    setUploadedImages(
-      uploadedImages.map((img, i) => (i === index ? { ...img, caption } : img))
+    setUploadedImages((prevImages) =>
+      prevImages.map((img, i) => (i === index ? { ...img, caption } : img))
     );
   };
 
