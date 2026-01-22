@@ -129,6 +129,7 @@ export default function PropertyDetail() {
                     <img
                       src={image.imageUrl}
                       alt={image.caption || `Image ${index + 1}`}
+                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -307,6 +308,7 @@ export default function PropertyDetail() {
                         <img
                           src={image.imageUrl}
                           alt={image.caption || `Image ${index + 1}`}
+                          loading="lazy"
                           className="w-full h-full object-cover"
                         />
                       </button>
@@ -349,6 +351,7 @@ export default function PropertyDetail() {
                     <img
                       src={thumbnailImage ? thumbnailImage.imageUrl : unitPlaceholder}
                       alt={`Unit ${unit.unitNumber}`}
+                      loading="lazy"
                       className="w-full h-full object-cover"
                       data-testid={`img-unit-${unit.id}`}
                     />
@@ -483,6 +486,7 @@ export default function PropertyDetail() {
                         <img
                           src={image.imageUrl}
                           alt={image.caption || `Image ${index + 1}`}
+                          loading="lazy"
                           className="w-full h-full object-cover"
                         />
                       </button>

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { MapPin, Building2, Pause, Play } from "lucide-react";
 import { Link } from "wouter";
-import heroImage from "@assets/Westview_JTP_4541_1761242520164.jpg";
+import heroImage from "@assets/Westview_JTP_4541_optimized.webp";
 import type { HeroImage } from "@shared/schema";
 
 export function Hero() {
