@@ -510,6 +510,13 @@ export default function AdminBulkPhotoUpload() {
                               </div>
 
                               <div className="p-3 space-y-2">
+                                <div 
+                                  className="text-xs text-muted-foreground truncate" 
+                                  title={image.url.split('/').pop() || 'Unknown file'}
+                                  data-testid={`text-filename-${index}`}
+                                >
+                                  {image.url.split('/').pop() || 'Unknown file'}
+                                </div>
                                 <Input
                                   placeholder="Add caption..."
                                   value={image.caption}
