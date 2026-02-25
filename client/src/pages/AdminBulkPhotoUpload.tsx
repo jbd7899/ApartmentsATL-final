@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { ArrowLeft, Upload, X, Loader2, GripVertical, Star, ImagePlus, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
-import { isUnauthorizedError, isForbiddenError } from "@/lib/authUtils";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { PropertyWithImages, UnitWithImages } from "@shared/schema";
 import type { UploadResult } from "@uppy/core";
@@ -26,34 +26,21 @@ interface UploadedImage {
 
 export default function AdminBulkPhotoUpload() {
   const { toast } = useToast();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isLoading: adminLoading, isAdmin } = useAdminAuth();
   
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
   const [selectedUnitId, setSelectedUnitId] = useState<string>("");
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You need to log in to access the admin panel.",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-    }
-  }, [isAuthenticated, authLoading, toast]);
-
   const { data: properties, isLoading: propertiesLoading } = useQuery<PropertyWithImages[]>({
     queryKey: ["/api/properties"],
-    enabled: isAuthenticated,
+    enabled: isAdmin,
   });
 
   const { data: units, isLoading: unitsLoading } = useQuery<UnitWithImages[]>({
     queryKey: ["/api/properties", selectedPropertyId, "units"],
-    enabled: !!selectedPropertyId && isAuthenticated,
+    enabled: !!selectedPropertyId && isAdmin,
   });
 
   const selectedProperty = properties?.find(p => p.id === selectedPropertyId);
@@ -116,14 +103,6 @@ export default function AdminBulkPhotoUpload() {
         }, 500);
         return;
       }
-      if (isForbiddenError(error)) {
-        toast({
-          title: "Access Denied",
-          description: "You do not have permission to upload photos.",
-          variant: "destructive",
-        });
-        return;
-      }
       toast({
         title: "Error",
         description: "Failed to save photos",
@@ -155,14 +134,6 @@ export default function AdminBulkPhotoUpload() {
         setTimeout(() => {
           window.location.href = "/api/login";
         }, 500);
-        return;
-      }
-      if (isForbiddenError(error)) {
-        toast({
-          title: "Access Denied",
-          description: "You do not have permission to upload photos.",
-          variant: "destructive",
-        });
         return;
       }
       toast({
@@ -285,7 +256,7 @@ export default function AdminBulkPhotoUpload() {
   const isSaving = saveUnitImagesMutation.isPending || savePropertyImagesMutation.isPending;
   const canShowPhotoSection = selectedProperty && (!isMultifamily || selectedUnitId);
 
-  if (authLoading) {
+  if (adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -293,7 +264,7 @@ export default function AdminBulkPhotoUpload() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
     return null;
   }
 

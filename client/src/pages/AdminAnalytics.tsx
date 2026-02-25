@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Header } from "@/components/Header";
@@ -7,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ArrowLeft, TrendingUp, Eye } from "lucide-react";
 import { Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import type { PropertyWithImages } from "@shared/schema";
 
 interface ViewCount {
@@ -17,36 +15,21 @@ interface ViewCount {
 }
 
 export default function AdminAnalytics() {
-  const { toast } = useToast();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You need to log in to access the analytics dashboard.",
-        variant: "destructive",
-      });
-      const timeoutId = setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [isAuthenticated, authLoading, toast]);
+  const { isLoading: adminLoading, isAdmin } = useAdminAuth();
 
   const { data: viewCounts, isLoading: viewsLoading } = useQuery<ViewCount[]>({
     queryKey: ["/api/analytics/views"],
-    enabled: isAuthenticated,
+    enabled: isAdmin,
   });
 
   const { data: properties, isLoading: propertiesLoading } = useQuery<PropertyWithImages[]>({
     queryKey: ["/api/properties"],
-    enabled: isAuthenticated,
+    enabled: isAdmin,
   });
 
-  const isLoading = authLoading || viewsLoading || propertiesLoading;
+  const isLoading = adminLoading || viewsLoading || propertiesLoading;
 
-  if (authLoading) {
+  if (adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -54,7 +37,7 @@ export default function AdminAnalytics() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
     return null;
   }
 

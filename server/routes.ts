@@ -24,6 +24,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/auth/admin', isAuthenticated, async (req: any, res) => {
+    const adminEmails = (process.env.ADMIN_EMAILS || "")
+      .split(",")
+      .map((e: string) => e.trim().toLowerCase())
+      .filter((e: string) => e.length > 0);
+    const userEmail = req.user?.claims?.email?.toLowerCase();
+    const isAdmin = !!userEmail && adminEmails.includes(userEmail);
+    res.json({ isAdmin });
+  });
+
   // Object storage routes
   app.get("/objects/:objectPath(*)", async (req: any, res) => {
     const userId = req.user?.claims?.sub;

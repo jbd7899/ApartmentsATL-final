@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Header } from "@/components/Header";
@@ -22,7 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { ApartmentFinderSubmission } from "@shared/schema";
 import { ArrowLeft, Loader2, Mail, Phone, Calendar, DollarSign, Home, Car, PawPrint } from "lucide-react";
@@ -30,25 +30,12 @@ import { format } from "date-fns";
 
 export default function AdminApartmentFinder() {
   const { toast } = useToast();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isLoading: adminLoading, isAdmin } = useAdminAuth();
   const [selectedSubmission, setSelectedSubmission] = useState<ApartmentFinderSubmission | null>(null);
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You need to log in to access the admin panel.",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-    }
-  }, [isAuthenticated, authLoading, toast]);
 
   const { data: submissions, isLoading } = useQuery<ApartmentFinderSubmission[]>({
     queryKey: ["/api/apartment-finder"],
-    enabled: isAuthenticated,
+    enabled: isAdmin,
   });
 
   const updateStatusMutation = useMutation({
@@ -71,7 +58,7 @@ export default function AdminApartmentFinder() {
     },
   });
 
-  if (authLoading) {
+  if (adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -79,7 +66,7 @@ export default function AdminApartmentFinder() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
     return null;
   }
 

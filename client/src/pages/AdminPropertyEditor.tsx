@@ -14,7 +14,7 @@ import { ObjectUploader } from "@/components/ObjectUploader";
 import { UnitManager } from "@/components/admin/UnitManager";
 import { Loader2, ArrowLeft, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { PropertyWithImages, InsertProperty } from "@shared/schema";
@@ -25,7 +25,7 @@ export default function AdminPropertyEditor() {
   const [, navigate] = useLocation();
   const propertyId = params.id === "new" ? null : params.id;
   const { toast } = useToast();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isLoading: adminLoading, isAdmin } = useAdminAuth();
 
   const [formData, setFormData] = useState<InsertProperty>({
     title: "",
@@ -49,22 +49,9 @@ export default function AdminPropertyEditor() {
     isPrimary: boolean;
   }>>([]);
 
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You need to log in to access the admin panel.",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-    }
-  }, [isAuthenticated, authLoading, toast]);
-
   const { data: property, isLoading } = useQuery<PropertyWithImages>({
     queryKey: ["/api/properties", propertyId],
-    enabled: !!propertyId && isAuthenticated,
+    enabled: !!propertyId && isAdmin,
   });
 
   useEffect(() => {
@@ -251,7 +238,7 @@ export default function AdminPropertyEditor() {
     });
   };
 
-  if (authLoading || (propertyId && isLoading)) {
+  if (adminLoading || (propertyId && isLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -259,7 +246,7 @@ export default function AdminPropertyEditor() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
     return null;
   }
 

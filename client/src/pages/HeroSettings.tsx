@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { Loader2, Upload, X, GripVertical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { HeroImage } from "@shared/schema";
@@ -25,29 +25,16 @@ import {
 
 export default function HeroSettings() {
   const { toast } = useToast();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isLoading: adminLoading, isAdmin } = useAdminAuth();
   const [images, setImages] = useState<HeroImage[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [previousOrder, setPreviousOrder] = useState<HeroImage[]>([]);
 
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You need to log in to access the admin panel.",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-    }
-  }, [isAuthenticated, authLoading, toast]);
-
-  const { data: heroImages, isLoading } = useQuery<HeroImage[]>({
+  const { data: heroImages, isLoading: heroImagesLoading } = useQuery<HeroImage[]>({
     queryKey: ["/api/hero-images"],
-    enabled: isAuthenticated,
+    enabled: isAdmin,
   });
 
   useEffect(() => {
@@ -234,12 +221,16 @@ export default function HeroSettings() {
     setDraggedIndex(null);
   };
 
-  if (authLoading || isLoading) {
+  if (adminLoading || heroImagesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" data-testid="loader-hero-settings" />
       </div>
     );
+  }
+
+  if (!isAdmin) {
+    return null;
   }
 
   return (
