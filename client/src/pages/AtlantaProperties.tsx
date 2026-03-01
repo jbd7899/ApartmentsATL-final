@@ -25,7 +25,7 @@ export default function AtlantaProperties() {
               </h1>
             </div>
             <p className="text-lg text-muted-foreground max-w-3xl">
-              Discover quality rental properties in Intown Atlanta. From multifamily apartments to charming single-family homes.
+              Discover charming rental properties in Intown Atlanta. From multifamily apartments to charming single-family homes.
             </p>
           </div>
         </section>

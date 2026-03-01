@@ -23,7 +23,7 @@ export default function About() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
             <div className="prose prose-lg max-w-none mb-12">
               <p className="text-lg text-foreground leading-relaxed mb-6">
-                We are a family-owned and operated small business dedicated to providing quality rental properties 
+                We are a family-owned and operated small business dedicated to providing charming rental properties 
                 in Intown Atlanta and East Dallas. Our commitment to personal service and attention to detail sets 
                 us apart in property management.
               </p>
@@ -95,7 +95,7 @@ export default function About() {
                       Intown Atlanta, Georgia
                     </h3>
                     <p className="text-muted-foreground">
-                      Serving the vibrant Intown Atlanta community with quality rental homes
+                      Serving the vibrant Intown Atlanta community with charming rental homes
                     </p>
                   </div>
                   <div>

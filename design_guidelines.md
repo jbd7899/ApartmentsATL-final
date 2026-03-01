@@ -89,7 +89,7 @@
 - Large hero image showcasing an attractive property exterior or interior
 - Dimensions: Full-width, h-[500px] to h-[600px]
 - Overlay: Subtle dark gradient (from bottom) for text readability
-- Hero text: "Quality Rental Properties in Atlanta & Dallas"
+- Hero text: "Charming Rental Properties in Atlanta & Dallas"
 
 **Property Images:**
 - Minimum 4-6 high-quality images per property
