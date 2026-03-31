@@ -68,6 +68,15 @@ export default async (req: Request, context: Context) => {
         if (!response.ok) {
           results.failed++;
           results.errors.push(`${oldUrl}: HTTP ${response.status}`);
+          // Mark as failed in DB so it doesn't block future batches
+          const failedUrl = `/api/images/failed/${key}`;
+          if (row.table_name === "property_images") {
+            await sql`UPDATE property_images SET image_url = ${failedUrl} WHERE id = ${row.id}`;
+          } else if (row.table_name === "unit_images") {
+            await sql`UPDATE unit_images SET image_url = ${failedUrl} WHERE id = ${row.id}`;
+          } else if (row.table_name === "hero_images") {
+            await sql`UPDATE hero_images SET image_url = ${failedUrl} WHERE id = ${row.id}`;
+          }
           continue;
         }
 
