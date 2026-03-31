@@ -1,7 +1,7 @@
 import type { Context, Config } from "@netlify/functions";
 import { storage } from "../../lib/storage";
 import { requireAdmin, jsonResponse } from "../../lib/auth";
-import { insertHeroImageSchema } from "@shared/schema";
+import { insertHeroImageSchema } from "../../shared/schema";
 
 export default async (req: Request, context: Context) => {
   const admin = requireAdmin(req);

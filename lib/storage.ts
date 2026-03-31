@@ -23,7 +23,7 @@ import {
   type InsertHeroImage,
   type ApartmentFinderSubmission,
   type InsertApartmentFinderSubmission,
-} from "@shared/schema";
+} from "../shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
 
@@ -228,7 +228,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async trackPropertyView(propertyId: string, ipAddress?: string, userAgent?: string): Promise<void> {
-    const { propertyViews } = await import("@shared/schema");
+    const { propertyViews } = await import("../shared/schema");
     await db.insert(propertyViews).values({
       propertyId,
       ipAddress: ipAddress || null,
@@ -237,7 +237,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPropertyViewCount(propertyId: string): Promise<number> {
-    const { propertyViews } = await import("@shared/schema");
+    const { propertyViews } = await import("../shared/schema");
     const { count } = await import("drizzle-orm");
     const result = await db
       .select({ count: count() })
@@ -247,7 +247,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllPropertyViewCounts(): Promise<Array<{ propertyId: string; viewCount: number }>> {
-    const { propertyViews } = await import("@shared/schema");
+    const { propertyViews } = await import("../shared/schema");
     const { count } = await import("drizzle-orm");
     const result = await db
       .select({ propertyId: propertyViews.propertyId, viewCount: count() })

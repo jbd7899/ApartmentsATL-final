@@ -1,8 +1,8 @@
 import { Resend } from 'resend';
-import type { ApartmentFinderSubmission } from '@shared/schema';
+import type { ApartmentFinderSubmission } from '../shared/schema';
 
 export async function sendApartmentFinderNotification(submission: ApartmentFinderSubmission): Promise<void> {
-  const apiKey = Netlify.env.get("RESEND_API_KEY") || process.env.RESEND_API_KEY;
+  const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.error('RESEND_API_KEY not configured');
     return;
@@ -10,7 +10,7 @@ export async function sendApartmentFinderNotification(submission: ApartmentFinde
 
   const resend = new Resend(apiKey);
 
-  const adminEmailsRaw = Netlify.env.get("ADMIN_EMAILS") || process.env.ADMIN_EMAILS;
+  const adminEmailsRaw = process.env.ADMIN_EMAILS;
   if (!adminEmailsRaw) {
     console.error('ADMIN_EMAILS not configured');
     return;

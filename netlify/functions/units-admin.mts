@@ -1,7 +1,7 @@
 import type { Context, Config } from "@netlify/functions";
 import { storage } from "../../lib/storage";
 import { requireAdmin, jsonResponse } from "../../lib/auth";
-import { insertUnitSchema } from "@shared/schema";
+import { insertUnitSchema } from "../../shared/schema";
 import { z } from "zod";
 
 const bulkImageSchema = z.object({

@@ -2,7 +2,7 @@ import type { Context, Config } from "@netlify/functions";
 import { storage } from "../../lib/storage";
 import { jsonResponse } from "../../lib/auth";
 import { sendApartmentFinderNotification } from "../../lib/emailService";
-import { insertApartmentFinderSubmissionSchema } from "@shared/schema";
+import { insertApartmentFinderSubmissionSchema } from "../../shared/schema";
 
 export default async (req: Request, context: Context) => {
   try {

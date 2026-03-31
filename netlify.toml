@@ -8,13 +8,10 @@
 
 [functions]
   node_bundler = "esbuild"
+  included_files = ["shared/**"]
 
-# SPA fallback — serve index.html for all non-API, non-function routes
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
+# SPA fallback — only for non-API routes
+# API routes are handled by function config.path declarations
 [[redirects]]
   from = "/*"
   to = "/index.html"

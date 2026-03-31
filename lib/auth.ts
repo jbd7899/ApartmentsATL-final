@@ -59,7 +59,7 @@ export function getUser(req: Request): NetlifyIdentityUser | null {
 export function isAdmin(user: NetlifyIdentityUser | null): boolean {
   if (!user || !user.email) return false;
 
-  const adminEmails = (Netlify.env.get("ADMIN_EMAILS") || process.env.ADMIN_EMAILS || "")
+  const adminEmails = (process.env.ADMIN_EMAILS || "")
     .split(",")
     .map((e: string) => e.trim().toLowerCase())
     .filter((e: string) => e.length > 0);

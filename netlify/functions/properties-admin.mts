@@ -2,7 +2,7 @@ import type { Context, Config } from "@netlify/functions";
 import { storage } from "../../lib/storage";
 import { requireAdmin, jsonResponse } from "../../lib/auth";
 import { getStore } from "@netlify/blobs";
-import { insertPropertySchema } from "@shared/schema";
+import { insertPropertySchema } from "../../shared/schema";
 import { z } from "zod";
 
 const bulkPropertyImageSchema = z.object({
