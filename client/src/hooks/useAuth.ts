@@ -1,14 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export function useAuth() {
-  const { data: user, isLoading } = useQuery({
-    queryKey: ["/api/auth/user"],
-    retry: false,
-  });
+  const { user, isLoading, isAuthenticated } = useAuthContext();
 
   return {
     user,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated,
   };
 }

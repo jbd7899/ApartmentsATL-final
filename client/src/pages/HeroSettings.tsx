@@ -1,3 +1,4 @@
+import netlifyIdentity from "netlify-identity-widget";
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
@@ -65,7 +66,7 @@ export default function HeroSettings() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          netlifyIdentity.open("login");
         }, 500);
         return;
       }
@@ -96,7 +97,7 @@ export default function HeroSettings() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          netlifyIdentity.open("login");
         }, 500);
         return;
       }
@@ -130,7 +131,7 @@ export default function HeroSettings() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          netlifyIdentity.open("login");
         }, 500);
         return;
       }

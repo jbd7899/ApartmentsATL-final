@@ -1,3 +1,4 @@
+import netlifyIdentity from "netlify-identity-widget";
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -97,7 +98,7 @@ export function UnitForm({ propertyId, unit, onClose }: UnitFormProps) {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          netlifyIdentity.open("login");
         }, 500);
         return;
       }
@@ -133,7 +134,7 @@ export function UnitForm({ propertyId, unit, onClose }: UnitFormProps) {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          netlifyIdentity.open("login");
         }, 500);
         return;
       }

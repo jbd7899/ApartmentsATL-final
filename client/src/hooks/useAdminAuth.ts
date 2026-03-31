@@ -2,17 +2,26 @@ import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 export function useAdminAuth() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, login, getToken } = useAuthContext();
 
   const { data: adminData, isLoading: adminLoading } = useQuery<{ isAdmin: boolean }>({
     queryKey: ["/api/auth/admin"],
     enabled: isAuthenticated,
     retry: false,
+    queryFn: async () => {
+      const token = getToken();
+      const res = await fetch("/api/auth/admin", {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
+      return res.json();
+    },
   });
 
   const isLoading = authLoading || (isAuthenticated && adminLoading);
@@ -26,11 +35,11 @@ export function useAdminAuth() {
         variant: "destructive",
       });
       const id = setTimeout(() => {
-        window.location.href = "/api/login";
+        login();
       }, 500);
       return () => clearTimeout(id);
     }
-  }, [isAuthenticated, authLoading, toast]);
+  }, [isAuthenticated, authLoading, toast, login]);
 
   useEffect(() => {
     if (!authLoading && !adminLoading && isAuthenticated && adminData !== undefined && !isAdmin) {

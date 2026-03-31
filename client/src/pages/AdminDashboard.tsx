@@ -1,3 +1,4 @@
+import netlifyIdentity from "netlify-identity-widget";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Header } from "@/components/Header";
@@ -40,7 +41,7 @@ export default function AdminDashboard() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          netlifyIdentity.open("login");
         }, 500);
         return;
       }
