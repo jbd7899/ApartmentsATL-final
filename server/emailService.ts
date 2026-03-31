@@ -4,10 +4,10 @@ import type { ApartmentFinderSubmission } from '@shared/schema';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendApartmentFinderNotification(submission: ApartmentFinderSubmission): Promise<void> {
-  const adminEmailsRaw = process.env.ADMIN_EMAIL;
+  const adminEmailsRaw = process.env.ADMIN_EMAILS;
   
   if (!adminEmailsRaw) {
-    console.error('ADMIN_EMAIL not configured');
+    console.error('ADMIN_EMAILS not configured');
     return;
   }
 
@@ -15,7 +15,7 @@ export async function sendApartmentFinderNotification(submission: ApartmentFinde
   const adminEmails = adminEmailsRaw.split(',').map(email => email.trim()).filter(email => email.length > 0);
   
   if (adminEmails.length === 0) {
-    console.error('ADMIN_EMAIL contains no valid email addresses');
+    console.error('ADMIN_EMAILS contains no valid email addresses');
     return;
   }
 
