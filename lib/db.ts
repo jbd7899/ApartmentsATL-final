@@ -2,9 +2,8 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from "../shared/schema";
 
-// Lazy initialization — the Netlify.env global is only available
-// inside a function handler, not at module load time.
-let _db: ReturnType<typeof drizzle> | null = null;
+// Lazy initialization — env vars are available at runtime in Netlify Functions
+let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
 export function getDb() {
   if (!_db) {
@@ -13,13 +12,13 @@ export function getDb() {
       throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
     }
     const sql = neon(databaseUrl);
-    _db = drizzle({ client: sql, schema });
+    _db = drizzle(sql, { schema });
   }
   return _db;
 }
 
-// For backward compatibility — but callers should prefer getDb()
-export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+// Proxy so existing code that imports `db` keeps working
+export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
   get(_target, prop) {
     return (getDb() as any)[prop];
   },

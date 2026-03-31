@@ -32,9 +32,13 @@ export default async (req: Request, context: Context) => {
     }
 
     return new Response("Not Found", { status: 404 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in properties function:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new Response(JSON.stringify({
+      error: "Internal server error",
+      message: error?.message || String(error),
+      stack: error?.stack,
+    }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
