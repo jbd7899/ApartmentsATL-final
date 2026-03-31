@@ -23,20 +23,20 @@ export default async (req: Request, context: Context) => {
 
   // Get unmigrated images (still have /objects/ prefix)
   const unmigrated = await sql`
-    SELECT 'property_images' as table_name, id, "imageUrl" as url FROM property_images WHERE "imageUrl" LIKE '/objects/%'
+    SELECT 'property_images' as table_name, id, image_url as url FROM property_images WHERE image_url LIKE '/objects/%'
     UNION ALL
-    SELECT 'unit_images', id, "imageUrl" FROM unit_images WHERE "imageUrl" LIKE '/objects/%'
+    SELECT 'unit_images', id, image_url as url FROM unit_images WHERE image_url LIKE '/objects/%'
     UNION ALL
-    SELECT 'hero_images', id, "imageUrl" FROM hero_images WHERE "imageUrl" LIKE '/objects/%'
+    SELECT 'hero_images', id, image_url as url FROM hero_images WHERE image_url LIKE '/objects/%'
     LIMIT ${batchSize} OFFSET ${offset}
   `;
 
   // Count total remaining
   const countResult = await sql`
     SELECT (
-      (SELECT count(*) FROM property_images WHERE "imageUrl" LIKE '/objects/%') +
-      (SELECT count(*) FROM unit_images WHERE "imageUrl" LIKE '/objects/%') +
-      (SELECT count(*) FROM hero_images WHERE "imageUrl" LIKE '/objects/%')
+      (SELECT count(*) FROM property_images WHERE image_url LIKE '/objects/%') +
+      (SELECT count(*) FROM unit_images WHERE image_url LIKE '/objects/%') +
+      (SELECT count(*) FROM hero_images WHERE image_url LIKE '/objects/%')
     ) as remaining
   `;
   const totalRemaining = Number(countResult[0]?.remaining || 0);
@@ -81,11 +81,11 @@ export default async (req: Request, context: Context) => {
 
       // Update DB
       if (row.table_name === "property_images") {
-        await sql`UPDATE property_images SET "imageUrl" = ${newUrl} WHERE id = ${row.id}`;
+        await sql`UPDATE property_images SET image_url = ${newUrl} WHERE id = ${row.id}`;
       } else if (row.table_name === "unit_images") {
-        await sql`UPDATE unit_images SET "imageUrl" = ${newUrl} WHERE id = ${row.id}`;
+        await sql`UPDATE unit_images SET image_url = ${newUrl} WHERE id = ${row.id}`;
       } else if (row.table_name === "hero_images") {
-        await sql`UPDATE hero_images SET "imageUrl" = ${newUrl} WHERE id = ${row.id}`;
+        await sql`UPDATE hero_images SET image_url = ${newUrl} WHERE id = ${row.id}`;
       }
 
       results.success++;
