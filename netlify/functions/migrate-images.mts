@@ -5,7 +5,6 @@ import { neon } from "@neondatabase/serverless";
 const REPLIT_BASE = "https://property-showcase-johndeansmu.replit.app";
 
 export default async (req: Request, context: Context) => {
-  // Simple secret check to prevent random invocations
   const url = new URL(req.url);
   const secret = url.searchParams.get("secret");
   if (secret !== "migrate-517-images-2026") {
@@ -19,98 +18,82 @@ export default async (req: Request, context: Context) => {
 
   const sql = neon(databaseUrl);
   const imageStore = getStore("images");
+  const batchSize = parseInt(url.searchParams.get("batch") || "10");
+  const offset = parseInt(url.searchParams.get("offset") || "0");
 
-  // Collect all image URLs from the three tables
-  const propertyImages = await sql`SELECT id, "imageUrl" FROM property_images WHERE "imageUrl" LIKE '/objects/%'`;
-  const unitImages = await sql`SELECT id, "imageUrl" FROM unit_images WHERE "imageUrl" LIKE '/objects/%'`;
-  const heroImages = await sql`SELECT id, "imageUrl" FROM hero_images WHERE "imageUrl" LIKE '/objects/%'`;
+  // Get unmigrated images (still have /objects/ prefix)
+  const unmigrated = await sql`
+    SELECT 'property_images' as table_name, id, "imageUrl" as url FROM property_images WHERE "imageUrl" LIKE '/objects/%'
+    UNION ALL
+    SELECT 'unit_images', id, "imageUrl" FROM unit_images WHERE "imageUrl" LIKE '/objects/%'
+    UNION ALL
+    SELECT 'hero_images', id, "imageUrl" FROM hero_images WHERE "imageUrl" LIKE '/objects/%'
+    LIMIT ${batchSize} OFFSET ${offset}
+  `;
 
-  const allImages = [
-    ...propertyImages.map(r => ({ table: "property_images", id: r.id, url: r.imageUrl })),
-    ...unitImages.map(r => ({ table: "unit_images", id: r.id, url: r.imageUrl })),
-    ...heroImages.map(r => ({ table: "hero_images", id: r.id, url: r.imageUrl })),
-  ];
-
-  // Deduplicate by URL so we don't download the same image twice
-  const uniqueUrls = [...new Set(allImages.map(i => i.url))];
+  // Count total remaining
+  const countResult = await sql`
+    SELECT (
+      (SELECT count(*) FROM property_images WHERE "imageUrl" LIKE '/objects/%') +
+      (SELECT count(*) FROM unit_images WHERE "imageUrl" LIKE '/objects/%') +
+      (SELECT count(*) FROM hero_images WHERE "imageUrl" LIKE '/objects/%')
+    ) as remaining
+  `;
+  const totalRemaining = Number(countResult[0]?.remaining || 0);
 
   const results = {
-    total: uniqueUrls.length,
+    batchSize,
+    offset,
+    totalRemaining,
+    processed: 0,
     success: 0,
     failed: 0,
-    skipped: 0,
     errors: [] as string[],
-    dbUpdates: 0,
   };
 
-  // Map old URL -> new URL
-  const urlMap = new Map<string, string>();
+  for (const row of unmigrated) {
+    try {
+      const oldUrl = row.url;
+      const key = oldUrl.replace(/^\/objects\//, "");
+      const newUrl = `/api/images/${key}`;
 
-  // Process in batches of 10
-  for (let i = 0; i < uniqueUrls.length; i += 10) {
-    const batch = uniqueUrls.slice(i, i + 10);
-
-    await Promise.all(batch.map(async (oldUrl) => {
-      try {
-        // Extract the key from /objects/uploads/uuid
-        const key = oldUrl.replace(/^\/objects\//, "");
-
-        // Check if already migrated
-        const existing = await imageStore.getMetadata(key);
-        if (existing) {
-          urlMap.set(oldUrl, `/api/images/${key}`);
-          results.skipped++;
-          return;
-        }
-
+      // Check if blob already exists
+      const existing = await imageStore.getMetadata(key);
+      if (!existing) {
         // Download from Replit
-        const replitUrl = `${REPLIT_BASE}${oldUrl}`;
-        const response = await fetch(replitUrl);
+        const response = await fetch(`${REPLIT_BASE}${oldUrl}`, {
+          signal: AbortSignal.timeout(15000),
+        });
 
         if (!response.ok) {
           results.failed++;
           results.errors.push(`${oldUrl}: HTTP ${response.status}`);
-          return;
+          continue;
         }
 
         const contentType = response.headers.get("content-type") || "image/jpeg";
-        const blob = await response.blob();
+        const arrayBuffer = await response.arrayBuffer();
 
-        // Upload to Netlify Blobs
-        await imageStore.set(key, blob, {
-          metadata: {
-            contentType,
-            migratedFrom: "replit",
-            migratedAt: new Date().toISOString(),
-          },
+        await imageStore.set(key, new Blob([arrayBuffer]), {
+          metadata: { contentType },
         });
-
-        urlMap.set(oldUrl, `/api/images/${key}`);
-        results.success++;
-      } catch (error: any) {
-        results.failed++;
-        results.errors.push(`${oldUrl}: ${error.message}`);
       }
-    }));
-  }
 
-  // Update database URLs
-  for (const img of allImages) {
-    const newUrl = urlMap.get(img.url);
-    if (!newUrl) continue;
-
-    try {
-      if (img.table === "property_images") {
-        await sql`UPDATE property_images SET "imageUrl" = ${newUrl} WHERE id = ${img.id}`;
-      } else if (img.table === "unit_images") {
-        await sql`UPDATE unit_images SET "imageUrl" = ${newUrl} WHERE id = ${img.id}`;
-      } else if (img.table === "hero_images") {
-        await sql`UPDATE hero_images SET "imageUrl" = ${newUrl} WHERE id = ${img.id}`;
+      // Update DB
+      if (row.table_name === "property_images") {
+        await sql`UPDATE property_images SET "imageUrl" = ${newUrl} WHERE id = ${row.id}`;
+      } else if (row.table_name === "unit_images") {
+        await sql`UPDATE unit_images SET "imageUrl" = ${newUrl} WHERE id = ${row.id}`;
+      } else if (row.table_name === "hero_images") {
+        await sql`UPDATE hero_images SET "imageUrl" = ${newUrl} WHERE id = ${row.id}`;
       }
-      results.dbUpdates++;
+
+      results.success++;
     } catch (error: any) {
-      results.errors.push(`DB update ${img.table}/${img.id}: ${error.message}`);
+      results.failed++;
+      results.errors.push(`${row.url}: ${error.message}`);
     }
+    results.processed++;
   }
 
   return new Response(JSON.stringify(results, null, 2), {
