@@ -3,15 +3,12 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ComparisonProvider } from "@/contexts/ComparisonContext";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ComparisonBar } from "@/components/ComparisonBar";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import AtlantaProperties from "@/pages/AtlantaProperties";
 import DallasProperties from "@/pages/DallasProperties";
 import PropertyDetail from "@/pages/PropertyDetail";
-import PropertyComparison from "@/pages/PropertyComparison";
 import About from "@/pages/About";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminPropertyEditor from "@/pages/AdminPropertyEditor";
@@ -28,7 +25,6 @@ function Router() {
       <Route path="/atlanta" component={AtlantaProperties} />
       <Route path="/dallas" component={DallasProperties} />
       <Route path="/property/:id" component={PropertyDetail} />
-      <Route path="/compare" component={PropertyComparison} />
       <Route path="/about" component={About} />
       <Route path="/apartment-finder" component={ApartmentFinder} />
       <Route path="/admin" component={AdminDashboard} />
@@ -47,11 +43,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
-          <ComparisonProvider>
-            <Toaster />
-            <Router />
-            <ComparisonBar />
-          </ComparisonProvider>
+          <Toaster />
+          <Router />
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>
