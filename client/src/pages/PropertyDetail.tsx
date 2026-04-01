@@ -237,6 +237,20 @@ export default function PropertyDetail() {
               </div>
             </div>
 
+            <div className="pt-4 border-t">
+              <Button variant="outline" size="lg" className="w-full" asChild>
+                <a
+                  href="https://apartmentsatl.appfolio.com/listings/listings"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
+                >
+                  View Current Listings on AppFolio
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </Button>
+            </div>
+
           </CardContent>
         </Card>
       </div>
@@ -269,6 +283,19 @@ export default function PropertyDetail() {
               <p className="text-foreground leading-relaxed whitespace-pre-wrap">
                 {property.description}
               </p>
+              <div className="mt-6">
+                <Button variant="outline" className="w-full sm:w-auto" asChild>
+                  <a
+                    href="https://apartmentsatl.appfolio.com/listings/listings"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    View Current Listings on AppFolio
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </Button>
+              </div>
             </div>
 
             {/* Property Images */}
