@@ -83,7 +83,22 @@ export default function ApartmentFinder() {
         hasCar: data.hasCar,
         additionalInfo: data.additionalInfo || null,
       };
-      return await apiRequest("POST", "/api/apartment-finder", submissionData);
+      const result = await apiRequest("POST", "/api/apartment-finder", submissionData);
+
+      // Also submit to Netlify Forms (fire-and-forget for dashboard visibility)
+      const formData = new URLSearchParams();
+      formData.append("form-name", "apartment-finder");
+      formData.append("bot-field", "");
+      for (const [key, value] of Object.entries(submissionData)) {
+        formData.append(key, value == null ? "" : String(value));
+      }
+      fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString(),
+      }).catch(() => {});
+
+      return result;
     },
     onSuccess: () => {
       setSubmitted(true);
