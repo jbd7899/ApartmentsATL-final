@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { UserCircle, Home, Mail, Phone } from "lucide-react";
+import { UserCircle, Mail, Phone } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 export function Footer() {
   return (
@@ -8,8 +9,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Home className="h-5 w-5 text-primary" />
-              <span className="text-lg font-semibold">Properties</span>
+              <Logo className="h-5 w-5 text-primary" />
+              <span className="text-lg font-semibold font-display">ApartmentsATL</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Family-owned and operated property management serving Intown Atlanta and East Dallas.
