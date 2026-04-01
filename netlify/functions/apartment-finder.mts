@@ -1,7 +1,6 @@
 import type { Context, Config } from "@netlify/functions";
 import { storage } from "../../lib/storage";
 import { jsonResponse } from "../../lib/auth";
-import { sendApartmentFinderNotification } from "../../lib/emailService";
 import { insertApartmentFinderSubmissionSchema } from "../../shared/schema";
 
 export default async (req: Request, context: Context) => {
@@ -13,11 +12,6 @@ export default async (req: Request, context: Context) => {
     }
 
     const submission = await storage.createApartmentFinderSubmission(validation.data);
-
-    // Send email notification (don't wait for it to complete)
-    sendApartmentFinderNotification(submission).catch(err => {
-      console.error("Failed to send email notification:", err);
-    });
 
     return jsonResponse(submission, 201);
   } catch (error) {

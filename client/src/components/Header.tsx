@@ -2,8 +2,9 @@ import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Home, MapPin, UserCircle, Menu } from "lucide-react";
+import { MapPin, UserCircle, Menu, Search } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Logo } from "@/components/Logo";
 
 export function Header() {
   const [location] = useLocation();
@@ -54,8 +55,10 @@ export function Header() {
               className="flex items-center gap-2 hover-elevate rounded-md px-3 py-2 transition-colors"
               data-testid="link-home"
             >
-              <Home className="h-5 w-5 text-primary" />
-              <span className="text-lg font-semibold text-foreground">Properties</span>
+              <Logo className="h-6 w-6 text-primary" />
+              <span className="text-lg font-semibold text-foreground font-display">
+                ApartmentsATL
+              </span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-2">
@@ -96,6 +99,15 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Mobile Apartment Finder CTA */}
+            <Button variant="default" size="sm" asChild className="md:hidden" data-testid="button-apartment-finder-mobile">
+              <Link href="/apartment-finder" className="flex items-center gap-1.5">
+                <Search className="h-4 w-4" />
+                <span className="hidden sm:inline">Find</span>
+                <span className="sr-only sm:hidden">Apartment Finder</span>
+              </Link>
+            </Button>
+
             <Button
               variant="outline"
               size="sm"
