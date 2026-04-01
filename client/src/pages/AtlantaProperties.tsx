@@ -32,11 +32,9 @@ export default function AtlantaProperties() {
 
         <section className="py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <PropertyGrid 
-              properties={atlantaProperties} 
-              isLoading={isLoading} 
-              showFilters={true}
-              location="atlanta"
+            <PropertyGrid
+              properties={atlantaProperties}
+              isLoading={isLoading}
             />
           </div>
         </section>

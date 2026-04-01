@@ -32,11 +32,9 @@ export default function DallasProperties() {
 
         <section className="py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <PropertyGrid 
-              properties={dallasProperties} 
-              isLoading={isLoading} 
-              showFilters={true}
-              location="dallas"
+            <PropertyGrid
+              properties={dallasProperties}
+              isLoading={isLoading}
             />
           </div>
         </section>
