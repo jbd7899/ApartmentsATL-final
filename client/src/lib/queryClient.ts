@@ -1,10 +1,18 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import netlifyIdentity from "netlify-identity-widget";
 
-function getAuthHeaders(): Record<string, string> {
+async function getAuthHeaders(): Promise<Record<string, string>> {
   const user = netlifyIdentity.currentUser();
-  if (user?.token?.access_token) {
-    return { Authorization: `Bearer ${user.token.access_token}` };
+  if (user) {
+    try {
+      const token = await netlifyIdentity.refresh();
+      if (token) return { Authorization: `Bearer ${token}` };
+    } catch {
+      // Fall back to cached token
+    }
+    if (user.token?.access_token) {
+      return { Authorization: `Bearer ${user.token.access_token}` };
+    }
   }
   return {};
 }
@@ -22,7 +30,7 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<Response> {
   const headers: Record<string, string> = {
-    ...getAuthHeaders(),
+    ...(await getAuthHeaders()),
   };
 
   if (data) {
@@ -46,7 +54,7 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const res = await fetch(queryKey.join("/") as string, {
-      headers: getAuthHeaders(),
+      headers: await getAuthHeaders(),
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {

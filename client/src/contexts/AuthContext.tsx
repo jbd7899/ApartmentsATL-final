@@ -25,6 +25,7 @@ interface AuthContextType {
   login: () => void;
   logout: () => void;
   getToken: () => string | null;
+  getFreshToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -81,6 +82,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return currentUser.token.access_token;
   }
 
+  async function getFreshToken(): Promise<string | null> {
+    try {
+      const token = await netlifyIdentity.refresh();
+      return token || getToken();
+    } catch {
+      return getToken();
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -90,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         getToken,
+        getFreshToken,
       }}
     >
       {children}

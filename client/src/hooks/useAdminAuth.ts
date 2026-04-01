@@ -8,14 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 export function useAdminAuth() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { isAuthenticated, isLoading: authLoading, login, getToken } = useAuthContext();
+  const { isAuthenticated, isLoading: authLoading, login, getFreshToken } = useAuthContext();
 
   const { data: adminData, isLoading: adminLoading } = useQuery<{ isAdmin: boolean }>({
     queryKey: ["/api/auth/admin"],
     enabled: isAuthenticated,
     retry: false,
     queryFn: async () => {
-      const token = getToken();
+      const token = await getFreshToken();
       const res = await fetch("/api/auth/admin", {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
